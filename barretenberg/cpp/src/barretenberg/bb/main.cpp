@@ -3,6 +3,7 @@
 #include "barretenberg/bb/file_io.hpp"
 #include "barretenberg/client_ivc/client_ivc.hpp"
 #include "barretenberg/common/benchmark.hpp"
+#include "barretenberg/common/log.hpp"
 #include "barretenberg/common/map.hpp"
 #include "barretenberg/common/serialize.hpp"
 #include "barretenberg/common/timer.hpp"
@@ -13,16 +14,21 @@
 #include "barretenberg/dsl/acir_format/proof_surgeon.hpp"
 #include "barretenberg/dsl/acir_proofs/acir_composer.hpp"
 #include "barretenberg/dsl/acir_proofs/honk_contract.hpp"
+#include "barretenberg/ecc/curves/bn254/fq.hpp"
 #include "barretenberg/honk/proof_system/types/proof.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/plonk/proof_system/proving_key/serialize.hpp"
 #include "barretenberg/plonk_honk_shared/types/aggregation_object_type.hpp"
 #include "barretenberg/serialize/cbind.hpp"
+#include "barretenberg/serialize/msgpack.hpp"
 #include "barretenberg/srs/global_crs.hpp"
 #include "barretenberg/stdlib/client_ivc_verifier/client_ivc_recursive_verifier.hpp"
 #include "barretenberg/stdlib_circuit_builders/ultra_flavor.hpp"
 #include "barretenberg/stdlib_circuit_builders/ultra_keccak_flavor.hpp"
 #include "barretenberg/vm/avm/trace/public_inputs.hpp"
+#include "barretenberg/vm2/common/aztec_types.hpp"
+#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
+#include <sstream>
 
 #ifndef DISABLE_AZTEC_VM
 #include "barretenberg/vm/avm/generated/flavor.hpp"
@@ -708,18 +714,54 @@ void avm_prove(const std::filesystem::path& public_inputs_path,
 #endif
 }
 
+// struct DummySerialization {
+//     std::vector<FF> ffs;
+//     fq fq;
+//     avm::AffinePoint affine;
+//     avm::AztecAddress addr;
+//     std::vector<avm::simulation::ContractInstanceHint> contract_instance_hints;
+
+//     std::string to_string() const
+//     {
+//         std::ostringstream oss;
+//         oss << "ffs: [";
+//         for (size_t i = 0; i < ffs.size(); i++) {
+//             oss << ffs[i];
+//             if (i != ffs.size() - 1) {
+//                 oss << ", ";
+//             }
+//         }
+//         oss << "]" << std::endl;
+//         oss << "fq: " << fq << std::endl;
+//         oss << "affine: " << affine << std::endl;
+//         oss << "addr: " << addr << std::endl;
+//         oss << "contract_instance_hints: " << contract_instance_hints << std::endl;
+//         return oss.str();
+//     }
+
+//     MSGPACK_FIELDS(ffs, fq, affine, addr, contract_instance_hints);
+// };
+
 void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem::path& output_path)
 {
     using namespace avm;
     // vinfo("initializing crs with size: ", avm_trace::Execution::SRS_SIZE);
     // init_bn254_crs(avm_trace::Execution::SRS_SIZE);
 
-    // TODO: pass these.
-    (void)inputs_path;
-    (void)output_path;
+    // DummySerialization d;
+    // auto data = read_file(inputs_path);
+    // msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(d);
+    // info("dummy: ", d.to_string());
+    // return;
 
     AvmAPI avm;
-    avm.prove();
+    auto inputs = AvmAPI::Inputs::from(read_file(inputs_path));
+    return;
+
+    auto [proof, vk] = avm.prove(inputs);
+
+    write_file(output_path / "proof", to_buffer(proof));
+    // write_file(output_path / "vk", to_buffer(vk));
 }
 
 /**
@@ -1321,10 +1363,10 @@ int main(int argc, char* argv[])
             write_recursion_inputs_honk<UltraFlavor>(bytecode_path, witness_path, output_path, recursive);
 #ifndef DISABLE_AZTEC_VM
         } else if (command == "avm2_prove") {
-            std::filesystem::path hints_path = get_option(args, "--avm-hints", "./target/avm_hints.bin");
+            std::filesystem::path inputs_path = get_option(args, "--avm-inputs", "./target/avm_inputs.bin");
             // This outputs both files: proof and vk, under the given directory.
             std::filesystem::path output_path = get_option(args, "-o", "./proofs");
-            avm2_prove(hints_path, output_path);
+            avm2_prove(inputs_path, output_path);
         } else if (command == "avm_prove") {
             std::filesystem::path avm_public_inputs_path =
                 get_option(args, "--avm-public-inputs", "./target/avm_public_inputs.bin");

@@ -1,12 +1,15 @@
-import { type AvmCircuitInputs } from '@aztec/circuits.js';
+import { type AvmCircuitInputs, AztecAddress, Fq, Fr, Point, Vector } from '@aztec/circuits.js';
 import { sha256 } from '@aztec/foundation/crypto';
 import { type LogFn, type Logger } from '@aztec/foundation/log';
 import { Timer } from '@aztec/foundation/timer';
 import { type NoirCompiledCircuit } from '@aztec/types/noir';
 
+import { strict as assert } from 'assert';
 import * as proc from 'child_process';
 import { promises as fs } from 'fs';
+import { Encoder, addExtension } from 'msgpackr';
 import { basename, dirname, join } from 'path';
+import { inspect } from 'util';
 
 import { type UltraHonkFlavor } from '../honk.js';
 
@@ -477,6 +480,136 @@ export async function generateTubeProof(
         status: BB_RESULT.SUCCESS,
         durationMs,
         proofPath: outputPath,
+        pkPath: undefined,
+        vkPath: outputPath,
+      };
+    }
+    // Not a great error message here but it is difficult to decipher what comes from bb
+    return {
+      status: BB_RESULT.FAILURE,
+      reason: `Failed to generate proof. Exit code ${result.exitCode}. Signal ${result.signal}.`,
+      retry: !!result.signal,
+    };
+  } catch (error) {
+    return { status: BB_RESULT.FAILURE, reason: `${error}` };
+  }
+}
+
+/**
+ * Used for generating AVM proofs.
+ * It is assumed that the working directory is a temporary and/or random directory used solely for generating this proof.
+ * @param pathToBB - The full path to the bb binary
+ * @param workingDirectory - A working directory for use by bb
+ * @param input - The inputs for the public function to be proven
+ * @param log - A logging function
+ * @returns An object containing a result indication, the location of the proof and the duration taken
+ */
+export async function generateAvmProofV2(
+  pathToBB: string,
+  workingDirectory: string,
+  input: AvmCircuitInputs,
+  log: LogFn,
+): Promise<BBFailure | BBSuccess> {
+  // Check that the working directory exists
+  try {
+    await fs.access(workingDirectory);
+  } catch (error) {
+    return { status: BB_RESULT.FAILURE, reason: `Working directory ${workingDirectory} does not exist` };
+  }
+
+  // The proof is written to e.g. /workingDirectory/proof
+  const outputPath = workingDirectory;
+
+  const filePresent = async (file: string) =>
+    await fs
+      .access(file, fs.constants.R_OK)
+      .then(_ => true)
+      .catch(_ => false);
+
+  const binaryPresent = await filePresent(pathToBB);
+  if (!binaryPresent) {
+    return { status: BB_RESULT.FAILURE, reason: `Failed to find bb binary at ${pathToBB}` };
+  }
+
+  // Convert the inputs to something that works with vm2 and messagepack.
+  /* eslint-disable camelcase */
+  // const inputSubset = {
+  //   ffs: [new Fr(0x123456789), new Fr(0x987654321)],
+  //   affine: new Point(new Fr(0x123456789), new Fr(0x987654321), false),
+  //   fq: new Fq(0x123456789),
+  //   addr: AztecAddress.fromBigInt(0x123456789n),
+  //   contract_instance_hints: input.avmHints.contractInstances,
+  // };
+  const inputSubset = {
+    contractInstances: input.avmHints.contractInstances,
+    contractClasses: [],
+    // contractClasses: input.avmHints.contractBytecodeHints,
+  };
+  /* eslint-enable camelcase */
+  log(`inputSubset: ${inspect(inputSubset)}`);
+
+  // C++ Fr and Fq classes work well with the buffer serialization.
+  addExtension({
+    Class: Fr,
+    write: (fr: Fr) => fr.toBuffer(),
+  });
+  addExtension({
+    Class: Fq,
+    write: (fq: Fq) => fq.toBuffer(),
+  });
+  // AztecAddress is a class that has a field in TS, but just a field in C++.
+  addExtension({
+    Class: AztecAddress,
+    write: (addr: AztecAddress) => addr.toField(),
+  });
+  // If we find a vector, we just use the underlying list.
+  addExtension({
+    Class: Vector,
+    write: v => v.items,
+  });
+  // Affine points are a mess, we do our best.
+  addExtension({
+    Class: Point,
+    write: (p: Point) => {
+      assert(!p.inf, 'Cannot serialize infinity');
+      return { x: new Fq(p.x.toBigInt()), y: new Fq(p.y.toBigInt()) };
+    },
+  });
+  const encoder = new Encoder({
+    // always encode JS objects as MessagePack maps
+    // this makes it compatible with other MessagePack decoders
+    useRecords: false,
+    int64AsType: 'bigint',
+  });
+  const inputsBuffer = encoder.encode(inputSubset);
+
+  try {
+    // Write the inputs to the working directory.
+    const avmInputsPath = join(workingDirectory, 'avm_inputs.bin');
+    await fs.writeFile(avmInputsPath, inputsBuffer);
+    if (!filePresent(avmInputsPath)) {
+      return { status: BB_RESULT.FAILURE, reason: `Could not write avm inputs to ${avmInputsPath}` };
+    }
+
+    const args = [
+      '--avm-inputs',
+      avmInputsPath,
+      '-o',
+      outputPath,
+      currentLogLevel == 'debug' ? '-d' : currentLogLevel == 'verbose' ? '-v' : '',
+    ];
+    const timer = new Timer();
+    const logFunction = (message: string) => {
+      log(`AvmCircuit (prove) BB out - ${message}`);
+    };
+    const result = await executeBB(pathToBB, 'avm2_prove', args, logFunction);
+    const duration = timer.ms();
+
+    if (result.status == BB_RESULT.SUCCESS) {
+      return {
+        status: BB_RESULT.SUCCESS,
+        durationMs: duration,
+        proofPath: join(outputPath, PROOF_FILENAME),
         pkPath: undefined,
         vkPath: outputPath,
       };

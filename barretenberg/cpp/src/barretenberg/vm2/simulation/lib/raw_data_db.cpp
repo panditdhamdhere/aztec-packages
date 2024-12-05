@@ -5,8 +5,8 @@
 namespace bb::avm::simulation {
 
 HintedRawDataDB::HintedRawDataDB(const ExecutionHints& hints)
-    : contract_instances(hints.contract_instances)
-    , contract_classes(hints.contract_classes)
+    : contract_instances(hints.contractInstances)
+    , contract_classes(hints.contractClasses)
 {}
 
 ContractInstance HintedRawDataDB::get_contract_instance(const AztecAddress& address) const
@@ -17,18 +17,18 @@ ContractInstance HintedRawDataDB::get_contract_instance(const AztecAddress& addr
     return {
         .address = contract_instance_hint.address,
         .salt = contract_instance_hint.salt,
-        .deployer_addr = contract_instance_hint.deployer_addr,
-        .contract_class_id = contract_instance_hint.contract_class_id,
-        .initialisation_hash = contract_instance_hint.initialisation_hash,
+        .deployer_addr = contract_instance_hint.deployer,
+        .contract_class_id = contract_instance_hint.contractClassId,
+        .initialisation_hash = contract_instance_hint.initializationHash,
         .public_keys =
-            [](const auto& pks) {
+            [](const auto& pk) {
                 return PublicKeys{
-                    .nullifier_key = pks.nullifier_key,
-                    .incoming_viewing_key = pks.incoming_viewing_key,
-                    .outgoing_viewing_key = pks.outgoing_viewing_key,
-                    .tagging_key = pks.tagging_key,
+                    .nullifier_key = pk.masterNullifierPublicKey,
+                    .incoming_viewing_key = pk.masterIncomingViewingPublicKey,
+                    .outgoing_viewing_key = pk.masterOutgoingViewingPublicKey,
+                    .tagging_key = pk.masterTaggingPublicKey,
                 };
-            }(contract_instance_hint.public_keys),
+            }(contract_instance_hint.publicKeys),
     };
 }
 

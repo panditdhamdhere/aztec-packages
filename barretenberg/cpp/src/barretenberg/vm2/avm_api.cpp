@@ -7,15 +7,15 @@ namespace bb::avm {
 
 using namespace bb::avm::simulation;
 
-std::tuple<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove()
+std::tuple<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const AvmAPI::Inputs& inputs)
 {
     // Simulate.
-    AvmSimulationHelper simulation_helper;
+    AvmSimulationHelper simulation_helper(inputs);
     auto events = simulation_helper.simulate();
 
     // Generate trace.
     AvmTraceGenHelper tracegen_helper;
-    auto trace = tracegen_helper.generate_trace(events);
+    [[maybe_unused]] auto trace = tracegen_helper.generate_trace(events);
 
     // Prove.
     // TBD: Implement proving. This depends on the flavor.

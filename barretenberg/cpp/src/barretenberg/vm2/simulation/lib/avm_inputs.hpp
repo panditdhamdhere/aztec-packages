@@ -1,3 +1,5 @@
+// NOTE: names are in camel-case because they matter to messagepack.
+// DO NOT use camel-case outside of these structures.
 #pragma once
 
 #include <vector>
@@ -9,26 +11,27 @@
 namespace bb::avm::simulation {
 
 struct PublicKeysHint {
-    AffinePoint nullifier_key;
-    /** Incoming viewing public key */
-    AffinePoint incoming_viewing_key;
-    /** Outgoing viewing public key */
-    AffinePoint outgoing_viewing_key;
-    /** Tagging viewing public key */
-    AffinePoint tagging_key;
+    AffinePoint masterNullifierPublicKey;
+    AffinePoint masterIncomingViewingPublicKey;
+    AffinePoint masterOutgoingViewingPublicKey;
+    AffinePoint masterTaggingPublicKey;
 
-    MSGPACK_FIELDS(nullifier_key, incoming_viewing_key, outgoing_viewing_key, tagging_key);
+    MSGPACK_FIELDS(masterNullifierPublicKey,
+                   masterIncomingViewingPublicKey,
+                   masterOutgoingViewingPublicKey,
+                   masterTaggingPublicKey);
 };
 
 struct ContractInstanceHint {
     AztecAddress address;
+    bool exists;
     simulation::FF salt;
-    AztecAddress deployer_addr;
-    ContractClassId contract_class_id;
-    simulation::FF initialisation_hash;
-    PublicKeysHint public_keys;
+    AztecAddress deployer;
+    ContractClassId contractClassId;
+    simulation::FF initializationHash;
+    PublicKeysHint publicKeys;
 
-    MSGPACK_FIELDS(address, salt, deployer_addr, contract_class_id, initialisation_hash, public_keys);
+    MSGPACK_FIELDS(address, exists, salt, deployer, contractClassId, initializationHash, publicKeys);
 };
 
 struct ContractClassHint {
@@ -42,10 +45,12 @@ struct ContractClassHint {
 
 // Temporary.
 struct ExecutionHints {
-    std::vector<ContractInstanceHint> contract_instances;
-    std::vector<ContractClassHint> contract_classes;
+    std::vector<ContractInstanceHint> contractInstances;
+    std::vector<ContractClassHint> contractClasses;
 
-    MSGPACK_FIELDS(contract_instances, contract_classes);
+    static ExecutionHints from(const std::vector<uint8_t>& data);
+
+    MSGPACK_FIELDS(contractInstances, contractClasses);
 };
 
 } // namespace bb::avm::simulation
