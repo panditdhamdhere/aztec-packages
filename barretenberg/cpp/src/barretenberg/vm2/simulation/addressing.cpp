@@ -12,26 +12,6 @@
 #include "barretenberg/vm2/simulation/memory.hpp"
 
 namespace bb::avm::simulation {
-namespace {
-
-// These exceptions are internal to this file, to guide the processing and recovery.
-struct AddressingException : public std::runtime_error {
-    explicit AddressingException(AddressingEventError e)
-        : std::runtime_error("Addressing error")
-        , error(e)
-    {}
-    AddressingEventError error;
-};
-
-struct OperandResolutionException : public AddressingException {
-    explicit OperandResolutionException(AddressingEventError e, size_t operand_idx)
-        : AddressingException(e)
-        , operand_idx(operand_idx)
-    {}
-    size_t operand_idx;
-};
-
-} // namespace
 
 std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryInterface& memory) const
 {
@@ -64,7 +44,7 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
                 offset += stack_pointer.value;
                 event.after_relative[i] = static_cast<Operand>(offset);
                 if (!memory.is_valid_address(offset)) {
-                    throw OperandResolutionException(AddressingEventError::RELATIVE_COMPUTATION_OOB, i);
+                    throw AddressingException(AddressingEventError::RELATIVE_COMPUTATION_OOB, i);
                 }
             }
         }
@@ -75,7 +55,7 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
             if ((instruction.indirect >> (i + spec.num_addresses)) & 1) {
                 MemoryValue offset(event.resolved_operands[i]);
                 if (!memory.is_valid_address(offset)) {
-                    throw OperandResolutionException(AddressingEventError::INDIRECT_INVALID_ADDRESS, i);
+                    throw AddressingException(AddressingEventError::INDIRECT_INVALID_ADDRESS, i);
                 }
                 // Observe that the new address can still be invalid as an address.
                 // TODO: consider the guarantees of the output of this "gadget".
@@ -83,14 +63,16 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
                 event.resolved_operands[i] = static_cast<Operand>(new_address.value);
             }
         }
-    } catch (const OperandResolutionException& e) {
-        event.error = e.error;
-        event.error_operand_idx = e.operand_idx;
     } catch (const AddressingException& e) {
-        event.error = e.error;
+        event.error = e;
     }
 
     events.emit(AddressingEvent(event));
+    if (event.error.has_value()) {
+        // Signal the error to the caller.
+        throw AddressingException(event.error.value());
+    }
+
     return event.resolved_operands;
 }
 

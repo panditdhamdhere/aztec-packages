@@ -17,7 +17,7 @@ namespace bb::avm::simulation {
 class AddressingInterface {
   public:
     virtual ~AddressingInterface() = default;
-    // We need this method to be non-templated so that we can mock it.
+    // @throws AddressingException.
     virtual std::vector<Operand> resolve(const Instruction& instruction, MemoryInterface& memory) const = 0;
 };
 
