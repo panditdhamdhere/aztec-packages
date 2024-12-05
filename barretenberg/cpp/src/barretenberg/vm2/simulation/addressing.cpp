@@ -12,60 +12,86 @@
 #include "barretenberg/vm2/simulation/memory.hpp"
 
 namespace bb::avm::simulation {
+namespace {
 
-// Will resolve all addresses from `offsets` using the memory interface.
+// These exceptions are internal to this file, to guide the processing and recovery.
+struct AddressingException : public std::runtime_error {
+    explicit AddressingException(AddressingEventError e)
+        : std::runtime_error("Addressing error")
+        , error(e)
+    {}
+    AddressingEventError error;
+};
+
+struct OperandResolutionException : public AddressingException {
+    explicit OperandResolutionException(AddressingEventError e, size_t operand_idx)
+        : AddressingException(e)
+        , operand_idx(operand_idx)
+    {}
+    size_t operand_idx;
+};
+
+} // namespace
+
 std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryInterface& memory) const
 {
-    // Note: it's fine to query instruction info in here since it does not trigger events.
-    ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
-    const InstructionSpec& spec = instruction_info_db.get(opcode);
-    assert(instruction.operands.size() <= spec.num_addresses);
+    // We'll be filling in the event as we progress.
+    AddressingEvent event;
+    event.instruction = instruction;
 
-    // Copy the original operands since they are our starting point.
-    std::vector<Operand> resolved = instruction.operands;
-    // TODO: propagate this error.
-    assert(std::all_of(resolved.begin(), resolved.begin() + spec.num_addresses, [](const Operand&) {
-        // MemoryAddress addr(o);
-        // I don't have a tag so cannot check this now.
-        // return memory.is_valid_address(addr);
-        return true;
-    }));
+    try {
+        // Note: it's fine to query instruction info in here since it does not trigger events.
+        ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
+        const InstructionSpec& spec = instruction_info_db.get(opcode);
+        event.spec = &spec;
+        // This represents either: (1) wrong info in the spec, or (2) a wrong witgen deserialization.
+        // Therefore, it is not an error the circuit should be able to prove.
+        assert(instruction.operands.size() <= spec.num_addresses);
 
-    // We retrieve, cache and check M[0] first because this is probably what we'll do in the circuit.
-    auto stack_pointer = memory.get(0);
-    // TODO: propagate this error.
-    assert(memory.is_valid_address(stack_pointer));
-
-    // First process relative addressing for all the addresses.
-    for (size_t i = 0; i < spec.num_addresses; ++i) {
-        MemoryAddress offset(resolved[i]);
-        if ((offset >> i) & 1) {
-            // TODO: check bounds and tags. See simulator for reference.
-            offset += static_cast<MemoryAddress>(stack_pointer.value);
+        // We retrieve, cache and check M[0] first because this is probably what we'll do in the circuit.
+        auto stack_pointer = memory.get(0);
+        event.stack_pointer_tag = stack_pointer.tag;
+        event.stack_pointer_val = stack_pointer.value;
+        if (!memory.is_valid_address(stack_pointer)) {
+            throw AddressingException(AddressingEventError::STACK_POINTER_INVALID_ADDRESS);
         }
-        resolved[i] = static_cast<Operand>(offset);
-    }
-    auto after_relative = resolved;
 
-    // Then indirection.
-    for (size_t i = 0; i < spec.num_addresses; ++i) {
-        MemoryAddress offset(resolved[i]);
-        if ((offset >> (i + spec.num_addresses)) & 1) {
-            // TODO: check bounds and tags. See simulator for reference.
-            auto new_address = memory.get(offset);
-            assert(memory.is_valid_address(new_address));
-            offset = static_cast<MemoryAddress>(new_address.value);
+        // First process relative addressing for all the addresses.
+        event.after_relative = instruction.operands;
+        for (size_t i = 0; i < spec.num_addresses; ++i) {
+            if ((instruction.indirect >> i) & 1) {
+                MemoryValue offset(event.after_relative[i]);
+                offset += stack_pointer.value;
+                event.after_relative[i] = static_cast<Operand>(offset);
+                if (!memory.is_valid_address(offset)) {
+                    throw OperandResolutionException(AddressingEventError::RELATIVE_COMPUTATION_OOB, i);
+                }
+            }
         }
-        resolved[i] = static_cast<Operand>(offset);
+
+        // Then indirection.
+        event.resolved_operands = event.after_relative;
+        for (size_t i = 0; i < spec.num_addresses; ++i) {
+            if ((instruction.indirect >> (i + spec.num_addresses)) & 1) {
+                MemoryValue offset(event.resolved_operands[i]);
+                if (!memory.is_valid_address(offset)) {
+                    throw OperandResolutionException(AddressingEventError::INDIRECT_INVALID_ADDRESS, i);
+                }
+                // Observe that the new address can still be invalid as an address.
+                // TODO: consider the guarantees of the output of this "gadget".
+                auto new_address = memory.get(static_cast<MemoryAddress>(offset));
+                event.resolved_operands[i] = static_cast<Operand>(new_address.value);
+            }
+        }
+    } catch (const OperandResolutionException& e) {
+        event.error = e.error;
+        event.error_operand_idx = e.operand_idx;
+    } catch (const AddressingException& e) {
+        event.error = e.error;
     }
 
-    events.emit({ .instruction = std::move(instruction),
-                  .after_relative = std::move(after_relative),
-                  .resolved_operands = resolved,
-                  .stack_pointer_val = stack_pointer.value,
-                  .stack_pointer_tag = stack_pointer.tag,
-                  .spec = spec });
-    return resolved;
+    events.emit(AddressingEvent(event));
+    return event.resolved_operands;
 }
 
 } // namespace bb::avm::simulation

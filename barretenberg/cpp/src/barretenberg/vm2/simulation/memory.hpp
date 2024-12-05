@@ -26,10 +26,10 @@ class MemoryInterface {
 
     virtual uint32_t get_space_id() const = 0;
 
+    static bool is_valid_address(MemoryValue address) { return address < (static_cast<MemoryAddress>(1) << 32); }
     static bool is_valid_address(ValueRefAndTag address)
     {
-        // TODO: consider adding < 2^32 once we change memory value types.
-        return address.tag == MemoryTag::U32;
+        return is_valid_address(address.value) && address.tag == MemoryAddressTag;
     }
 };
 

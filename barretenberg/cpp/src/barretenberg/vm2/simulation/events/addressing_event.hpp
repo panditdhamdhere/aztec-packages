@@ -9,6 +9,13 @@
 
 namespace bb::avm::simulation {
 
+enum class AddressingEventError {
+    NO_ERROR,
+    STACK_POINTER_INVALID_ADDRESS,
+    RELATIVE_COMPUTATION_OOB,
+    INDIRECT_INVALID_ADDRESS,
+};
+
 // See https://docs.google.com/document/d/1EgFj0OQYZCWufjzLgoAAiVL9jV0-fUAaCCIVlvRc8bY/ for circuit details.
 // - The activation mask can be derived from spec.num_addresses.
 struct AddressingEvent {
@@ -17,7 +24,9 @@ struct AddressingEvent {
     std::vector<Operand> resolved_operands;
     MemoryValue stack_pointer_val;
     MemoryTag stack_pointer_tag;
-    const InstructionSpec& spec;
+    const InstructionSpec* spec = nullptr;
+    AddressingEventError error;
+    size_t error_operand_idx = 0; // If any.
 };
 
 } // namespace bb::avm::simulation

@@ -6,9 +6,6 @@
 
 namespace bb::avm {
 
-using MemoryAddress = std::size_t;
-using MemoryValue = simulation::FF;
-
 enum class MemoryTag {
     U1,
     U8,
@@ -18,5 +15,9 @@ enum class MemoryTag {
     U128,
     FF,
 };
+
+using MemoryAddress = std::size_t;
+using MemoryValue = simulation::FF;
+constexpr auto MemoryAddressTag = MemoryTag::U32;
 
 } // namespace bb::avm

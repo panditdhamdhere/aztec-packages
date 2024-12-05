@@ -708,14 +708,14 @@ void avm_prove(const std::filesystem::path& public_inputs_path,
 #endif
 }
 
-void avm2_prove(const std::filesystem::path& hints_path, const std::filesystem::path& output_path)
+void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem::path& output_path)
 {
     using namespace avm;
     // vinfo("initializing crs with size: ", avm_trace::Execution::SRS_SIZE);
     // init_bn254_crs(avm_trace::Execution::SRS_SIZE);
 
     // TODO: pass these.
-    (void)hints_path;
+    (void)inputs_path;
     (void)output_path;
 
     AvmAPI avm;
