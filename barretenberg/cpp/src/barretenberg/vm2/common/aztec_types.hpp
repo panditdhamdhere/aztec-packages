@@ -13,11 +13,8 @@ using AffinePoint = grumpkin::g1::affine_element;
 
 struct PublicKeys {
     AffinePoint nullifier_key;
-    /** Incoming viewing public key */
     AffinePoint incoming_viewing_key;
-    /** Outgoing viewing public key */
     AffinePoint outgoing_viewing_key;
-    /** Tagging viewing public key */
     AffinePoint tagging_key;
 };
 

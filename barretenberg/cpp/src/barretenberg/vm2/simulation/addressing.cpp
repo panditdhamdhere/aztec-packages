@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "barretenberg/common/log.hpp"
 #include "barretenberg/vm2/common/memory_types.hpp"
 #include "barretenberg/vm2/simulation/events/addressing_event.hpp"
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
@@ -26,7 +27,7 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
         event.spec = &spec;
         // This represents either: (1) wrong info in the spec, or (2) a wrong witgen deserialization.
         // Therefore, it is not an error the circuit should be able to prove.
-        assert(instruction.operands.size() <= spec.num_addresses);
+        assert(spec.num_addresses <= instruction.operands.size());
 
         // We retrieve, cache and check M[0] first because this is probably what we'll do in the circuit.
         auto stack_pointer = memory.get(0);

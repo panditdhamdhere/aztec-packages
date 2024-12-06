@@ -9,7 +9,7 @@ const std::unordered_map<ExecutionOpCode, InstructionSpec> INSTRUCTION_SPEC = {
     { ExecutionOpCode::ADD,
       { .num_addresses = 3, .gas_cost = { .base_l2 = AVM_ADD_BASE_L2_GAS, .base_da = 0, .dyn_l2 = 0, .dyn_da = 0 } } },
     { ExecutionOpCode::CALL,
-      { .num_addresses = 6,
+      { .num_addresses = 5,
         .gas_cost = { .base_l2 = AVM_CALL_BASE_L2_GAS, .base_da = 0, .dyn_l2 = AVM_CALL_DYN_L2_GAS, .dyn_da = 0 } } },
     { ExecutionOpCode::RETURN,
       { .num_addresses = 2,

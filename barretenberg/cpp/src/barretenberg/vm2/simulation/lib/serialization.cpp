@@ -2,7 +2,11 @@
 
 #include <cassert>
 #include <cstdint>
+#include <format>
+#include <iomanip>
 #include <span>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
@@ -277,6 +281,25 @@ Operand::operator FF() const
     }
 }
 
+std::string Operand::to_string() const
+{
+    if (std::holds_alternative<uint8_t>(value)) {
+        return std::to_string(std::get<uint8_t>(value));
+    } else if (std::holds_alternative<uint16_t>(value)) {
+        return std::to_string(std::get<uint16_t>(value));
+    } else if (std::holds_alternative<uint32_t>(value)) {
+        return std::to_string(std::get<uint32_t>(value));
+    } else if (std::holds_alternative<uint64_t>(value)) {
+        return std::to_string(std::get<uint64_t>(value));
+    } else if (std::holds_alternative<uint128_t>(value)) {
+        return "someu128";
+    } else if (std::holds_alternative<FF>(value)) {
+        return "someff";
+    }
+
+    __builtin_unreachable();
+}
+
 Instruction decode_instruction(std::span<const uint8_t> bytecode, size_t pos)
 {
     const auto bytecode_length = bytecode.size();
@@ -402,5 +425,16 @@ Instruction decode_instruction(std::span<const uint8_t> bytecode, size_t pos)
              .operands = std::move(operands),
              .size_in_bytes = static_cast<uint8_t>(pos - starting_pos) };
 };
+
+std::string Instruction::to_string() const
+{
+    std::ostringstream oss;
+    oss << opcode << " indirect: " << std::format("{:b}", indirect) << ", operands: [ ";
+    for (const auto& operand : operands) {
+        oss << operand.to_string() << " ";
+    }
+    oss << "], size: " << static_cast<int>(size_in_bytes);
+    return oss.str();
+}
 
 } // namespace bb::avm::simulation

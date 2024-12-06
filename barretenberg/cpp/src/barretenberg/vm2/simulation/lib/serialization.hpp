@@ -36,6 +36,7 @@ class Operand {
     explicit operator FF() const;
 
     bool operator==(const Operand& other) const = default;
+    std::string to_string() const;
 
   private:
     std::variant<uint8_t, uint16_t, uint32_t, uint64_t, uint128_t, FF> value;
@@ -48,6 +49,7 @@ struct Instruction {
     uint8_t size_in_bytes;
 
     bool operator==(const Instruction& other) const = default;
+    std::string to_string() const;
 };
 
 /**

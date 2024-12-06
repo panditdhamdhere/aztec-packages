@@ -106,6 +106,8 @@ enum class WireOpCode {
     LAST_OPCODE_SENTINEL,
 };
 
+std::ostream& operator<<(std::ostream& os, const WireOpCode& op);
+
 // List of opcodes that can be executed.
 // This is like WireOpCode but without the variants.
 // Order doesn't really matter as long as it's in sync with the circuit.
@@ -116,19 +118,6 @@ enum class ExecutionOpCode {
     RETURN,
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ExecutionOpCode& op)
-{
-    switch (op) {
-    case ExecutionOpCode::ADD:
-        os << "ADD";
-    case ExecutionOpCode::CALL:
-        os << "CALL";
-    case ExecutionOpCode::JUMPI:
-        os << "JUMPI";
-    case ExecutionOpCode::RETURN:
-        os << "RETURN";
-    }
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const ExecutionOpCode& op);
 
 } // namespace bb::avm

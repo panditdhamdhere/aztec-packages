@@ -14,7 +14,10 @@ void Memory::set(MemoryAddress index, MemoryValue value, MemoryTag tag)
 
 ValueRefAndTag Memory::get(MemoryAddress index) const
 {
-    const auto& vt = memory.at(index);
+    static const ValueAndTag default_value = { 0, MemoryTag::FF };
+
+    auto it = memory.find(index);
+    const auto& vt = it != memory.end() ? it->second : default_value;
     events.emit({ .mode = MemoryMode::READ, .addr = index, .value = vt.value, .tag = vt.tag, .space_id = space_id });
     return { vt.value, vt.tag };
 }
