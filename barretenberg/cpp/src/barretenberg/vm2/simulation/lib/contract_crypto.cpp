@@ -2,8 +2,11 @@
 
 #include "barretenberg/crypto/poseidon2/poseidon2.hpp"
 #include "barretenberg/crypto/poseidon2/poseidon2_params.hpp"
+#include "barretenberg/vm/aztec_constants.hpp"
 
 namespace bb::avm::simulation {
+
+using poseidon2 = crypto::Poseidon2<crypto::Poseidon2Bn254ScalarFieldParams>;
 
 FF compute_public_bytecode_commitment(std::span<const uint8_t> bytecode)
 {
@@ -27,10 +30,15 @@ FF compute_public_bytecode_commitment(std::span<const uint8_t> bytecode)
     std::vector<FF> contract_bytecode_fields = encode_bytecode(bytecode);
     FF running_hash = 0;
     for (const auto& contract_bytecode_field : contract_bytecode_fields) {
-        using poseidon2 = crypto::Poseidon2<crypto::Poseidon2Bn254ScalarFieldParams>;
         running_hash = poseidon2::hash({ contract_bytecode_field, running_hash });
     }
     return running_hash;
+}
+
+FF compute_contract_class_id(const FF& artifact_hash, const FF& private_fn_root, const FF& public_bytecode_commitment)
+{
+    return poseidon2::hash(
+        { GENERATOR_INDEX__CONTRACT_LEAF, artifact_hash, private_fn_root, public_bytecode_commitment });
 }
 
 } // namespace bb::avm::simulation

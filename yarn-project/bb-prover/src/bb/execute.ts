@@ -1,4 +1,12 @@
-import { type AvmCircuitInputs, AztecAddress, Fq, Fr, Point, Vector } from '@aztec/circuits.js';
+import {
+  type AvmCircuitInputs,
+  AvmContractInstanceHint,
+  AztecAddress,
+  Fq,
+  Fr,
+  Point,
+  Vector,
+} from '@aztec/circuits.js';
 import { sha256 } from '@aztec/foundation/crypto';
 import { type LogFn, type Logger } from '@aztec/foundation/log';
 import { Timer } from '@aztec/foundation/timer';
@@ -531,8 +539,8 @@ export async function generateAvmProofV2(
     return { status: BB_RESULT.FAILURE, reason: `Failed to find bb binary at ${pathToBB}` };
   }
 
+  // log(`original: ${inspect(input)}`);
   // Convert the inputs to something that works with vm2 and messagepack.
-  /* eslint-disable camelcase */
   // const inputSubset = {
   //   ffs: [new Fr(0x123456789), new Fr(0x987654321)],
   //   affine: new Point(new Fr(0x123456789), new Fr(0x987654321), false),
@@ -540,13 +548,42 @@ export async function generateAvmProofV2(
   //   addr: AztecAddress.fromBigInt(0x123456789n),
   //   contract_instance_hints: input.avmHints.contractInstances,
   // };
-  const inputSubset = {
-    contractInstances: input.avmHints.contractInstances,
-    contractClasses: [],
-    // contractClasses: input.avmHints.contractBytecodeHints,
+  const hints = {
+    contractInstances: [] as any[],
+    contractClasses: [] as any[],
   };
-  /* eslint-enable camelcase */
-  log(`inputSubset: ${inspect(inputSubset)}`);
+  const inputs = {
+    hints: hints,
+    enqueuedCalls: [] as any[],
+  };
+  // For now we only transform bytecode requests. If we ever have any other
+  // contract instance hint, this will clash!
+  // See https://aztecprotocol.slack.com/archives/C04DL2L1UP2/p1733485524309389.
+  for (const bytecodeHint of input.avmHints.contractBytecodeHints.items) {
+    hints.contractInstances.push(bytecodeHint.contractInstanceHint);
+    hints.contractClasses.push({
+      artifactHash: bytecodeHint.contractClassHint.artifactHash,
+      privateFunctionsRoot: bytecodeHint.contractClassHint.privateFunctionsRoot,
+      publicBytecodeCommitment: bytecodeHint.contractClassHint.publicBytecodeCommitment,
+      packedBytecode: bytecodeHint.bytecode,
+    });
+  }
+  // This is not filled in yet.
+  // for (const enqueuedCall of input.avmHints.enqueuedCalls.items) {
+  //   inputs.enqueuedCalls.push({
+  //     contractAddress: enqueuedCall.contractAddress,
+  //     sender: new Fr(0), // FIXME
+  //     args: enqueuedCall.calldata,
+  //     isStatic: false, // FIXME
+  //   });
+  // }
+  inputs.enqueuedCalls.push({
+    contractAddress: input.publicInputs.callContext.contractAddress,
+    sender: input.publicInputs.callContext.msgSender,
+    args: input.calldata,
+    isStatic: input.publicInputs.callContext.isStaticCall,
+  });
+  log(`inputs: ${inspect(inputs)}`);
 
   // C++ Fr and Fq classes work well with the buffer serialization.
   addExtension({
@@ -581,7 +618,7 @@ export async function generateAvmProofV2(
     useRecords: false,
     int64AsType: 'bigint',
   });
-  const inputsBuffer = encoder.encode(inputSubset);
+  const inputsBuffer = encoder.encode(inputs);
 
   try {
     // Write the inputs to the working directory.

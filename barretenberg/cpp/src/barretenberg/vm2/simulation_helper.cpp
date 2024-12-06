@@ -44,7 +44,9 @@ struct FastSettings {
     using BytecodeDecompositionEventEmitter = NoopEventEmitter<BytecodeDecompositionEvent>;
 };
 
-template <typename S> EventsContainer simulate_with_settings()
+} // namespace
+
+template <typename S> EventsContainer AvmSimulationHelper::simulate_with_settings()
 {
     typename S::ExecutionEventEmitter execution_emitter;
     typename S::AluEventEmitter alu_emitter;
@@ -53,8 +55,7 @@ template <typename S> EventsContainer simulate_with_settings()
     typename S::BytecodeHashingEventEmitter bytecode_hashing_emitter;
     typename S::BytecodeDecompositionEventEmitter bytecode_decomposition_emitter;
 
-    ExecutionHints hints; // TODO: actually load them.
-    HintedRawDataDB db(hints);
+    HintedRawDataDB db(inputs.hints);
     TxBytecodeManager bytecode_manager(db, bytecode_hashing_emitter, bytecode_decomposition_emitter);
     ContextProvider context_provider(bytecode_manager, memory_emitter);
 
@@ -65,18 +66,12 @@ template <typename S> EventsContainer simulate_with_settings()
     Execution execution(alu, addressing, context_provider, context_stack, instruction_info_db, execution_emitter);
     TxExecution tx_execution(execution);
 
-    std::vector<PublicExecutionRequest> enqueued_calls = {
-        { AztecAddress(0xdeadbeef), AztecAddress(0), { 1, 2, 3, 4 }, false },
-        { AztecAddress(0xdead0101), AztecAddress(0), { 1, 2, 3, 4 }, false },
-    };
-    tx_execution.simulate({ enqueued_calls });
+    tx_execution.simulate({ .enqueued_calls = inputs.enqueuedCalls });
 
     return { execution_emitter.dump_events(),        alu_emitter.dump_events(),
              memory_emitter.dump_events(),           addressing_emitter.dump_events(),
              bytecode_hashing_emitter.dump_events(), bytecode_decomposition_emitter.dump_events() };
 }
-
-} // namespace
 
 EventsContainer AvmSimulationHelper::simulate()
 {

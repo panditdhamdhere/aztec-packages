@@ -20,6 +20,7 @@ BytecodeId TxBytecodeManager::get_bytecode(const AztecAddress& address)
     ContractInstance instance = db.get_contract_instance(address);
     ContractClass klass = db.get_contract_class(instance.contract_class_id);
     FF hash = compute_public_bytecode_commitment(klass.packed_bytecode);
+    info("Bytecode for ", address, " successfully retrieved!");
 
     // OK OKKKK *maybe* it makes sense to use a shared_ptr with bytecode.
     hash_events.emit({ .class_id = instance.contract_class_id, .bytecode = klass.packed_bytecode, .hash = hash });

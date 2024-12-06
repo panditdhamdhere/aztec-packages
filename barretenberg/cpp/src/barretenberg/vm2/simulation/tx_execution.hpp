@@ -1,16 +1,9 @@
 #pragma once
 
 #include "barretenberg/vm2/simulation/execution.hpp"
+#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
 namespace bb::avm::simulation {
-
-// FIXME: temporarily here.
-struct PublicExecutionRequest {
-    AztecAddress contract_address;
-    AztecAddress sender;
-    std::vector<FF> args;
-    bool is_static;
-};
 
 // Temporary.
 struct Tx {

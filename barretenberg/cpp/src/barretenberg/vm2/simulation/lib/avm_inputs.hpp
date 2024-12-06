@@ -35,22 +35,37 @@ struct ContractInstanceHint {
 };
 
 struct ContractClassHint {
-    simulation::FF artifact_hash;
-    simulation::FF private_function_root;
-    simulation::FF public_bytecode_commitment;
-    std::vector<uint8_t> packed_bytecode;
+    simulation::FF artifactHash;
+    simulation::FF privateFunctionsRoot;
+    simulation::FF publicBytecodeCommitment;
+    std::vector<uint8_t> packedBytecode;
 
-    MSGPACK_FIELDS(artifact_hash, private_function_root, public_bytecode_commitment, packed_bytecode);
+    MSGPACK_FIELDS(artifactHash, privateFunctionsRoot, publicBytecodeCommitment, packedBytecode);
 };
 
-// Temporary.
 struct ExecutionHints {
     std::vector<ContractInstanceHint> contractInstances;
     std::vector<ContractClassHint> contractClasses;
 
-    static ExecutionHints from(const std::vector<uint8_t>& data);
-
     MSGPACK_FIELDS(contractInstances, contractClasses);
+};
+
+struct PublicExecutionRequest {
+    AztecAddress contractAddress;
+    AztecAddress sender;
+    std::vector<FF> args;
+    bool isStatic;
+
+    MSGPACK_FIELDS(contractAddress, sender, args, isStatic);
+};
+
+struct AvmInputs {
+    std::vector<PublicExecutionRequest> enqueuedCalls;
+    ExecutionHints hints;
+
+    static AvmInputs from(const std::vector<uint8_t>& data);
+
+    MSGPACK_FIELDS(enqueuedCalls, hints);
 };
 
 } // namespace bb::avm::simulation

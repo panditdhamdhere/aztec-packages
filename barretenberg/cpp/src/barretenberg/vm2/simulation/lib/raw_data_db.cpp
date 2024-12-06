@@ -1,4 +1,5 @@
 #include "barretenberg/vm2/simulation/lib/raw_data_db.hpp"
+#include "barretenberg/vm2/simulation/lib/contract_crypto.hpp"
 
 #include <cassert>
 
@@ -36,12 +37,14 @@ ContractClass HintedRawDataDB::get_contract_class(const ContractClassId& class_i
 {
     assert(contract_classes_idx < contract_classes.size());
     auto contract_class_hint = contract_classes[contract_classes_idx++];
-    assert(class_id == contract_class_hint.artifact_hash);
+    assert(class_id == compute_contract_class_id(contract_class_hint.artifactHash,
+                                                 contract_class_hint.privateFunctionsRoot,
+                                                 contract_class_hint.publicBytecodeCommitment));
     return {
-        .artifact_hash = contract_class_hint.artifact_hash,
-        .private_function_root = contract_class_hint.private_function_root,
-        .public_bytecode_commitment = contract_class_hint.public_bytecode_commitment,
-        .packed_bytecode = contract_class_hint.packed_bytecode,
+        .artifact_hash = contract_class_hint.artifactHash,
+        .private_function_root = contract_class_hint.privateFunctionsRoot,
+        .public_bytecode_commitment = contract_class_hint.publicBytecodeCommitment,
+        .packed_bytecode = contract_class_hint.packedBytecode,
     };
 }
 

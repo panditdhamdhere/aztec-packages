@@ -756,7 +756,6 @@ void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem:
 
     AvmAPI avm;
     auto inputs = AvmAPI::Inputs::from(read_file(inputs_path));
-    return;
 
     auto [proof, vk] = avm.prove(inputs);
 

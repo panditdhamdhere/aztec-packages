@@ -6,11 +6,11 @@
 
 namespace bb::avm::simulation {
 
-ExecutionHints ExecutionHints::from(const std::vector<uint8_t>& data)
+AvmInputs AvmInputs::from(const std::vector<uint8_t>& data)
 {
-    ExecutionHints hints;
-    msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(hints);
-    return hints;
+    AvmInputs inputs;
+    msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(inputs);
+    return inputs;
 }
 
 } // namespace bb::avm::simulation

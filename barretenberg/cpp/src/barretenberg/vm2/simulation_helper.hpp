@@ -9,8 +9,8 @@ namespace bb::avm {
 
 class AvmSimulationHelper {
   public:
-    AvmSimulationHelper(const simulation::ExecutionHints& inputs)
-        : inputs(inputs)
+    AvmSimulationHelper(simulation::AvmInputs inputs)
+        : inputs(std::move(inputs))
     {}
 
     // Full simulation with event collection.
@@ -20,7 +20,9 @@ class AvmSimulationHelper {
     void simulate_fast();
 
   private:
-    simulation::ExecutionHints inputs;
+    template <typename S> simulation::EventsContainer simulate_with_settings();
+
+    simulation::AvmInputs inputs;
 };
 
 } // namespace bb::avm

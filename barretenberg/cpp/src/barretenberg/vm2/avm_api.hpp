@@ -11,7 +11,7 @@ class AvmAPI {
   public:
     using AvmProof = bb::HonkProof;
     using AvmVerificationKey = int;
-    using Inputs = simulation::ExecutionHints;
+    using Inputs = simulation::AvmInputs;
 
     AvmAPI() = default;
 
