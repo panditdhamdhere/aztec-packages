@@ -7,13 +7,13 @@
 namespace bb::avm {
 
 enum class MemoryTag {
+    FF,
     U1,
     U8,
     U16,
     U32,
     U64,
     U128,
-    FF,
 };
 
 using MemoryAddress = std::size_t;

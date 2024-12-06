@@ -224,12 +224,25 @@ std::ostream& operator<<(std::ostream& os, const ExecutionOpCode& op)
     switch (op) {
     case ExecutionOpCode::ADD:
         os << "ADD";
+        break;
+    case ExecutionOpCode::SET:
+        os << "SET";
+        break;
+    case ExecutionOpCode::MOV:
+        os << "MOV";
+        break;
     case ExecutionOpCode::CALL:
         os << "CALL";
+        break;
+    case ExecutionOpCode::JUMP:
+        os << "JUMP";
+        break;
     case ExecutionOpCode::JUMPI:
         os << "JUMPI";
+        break;
     case ExecutionOpCode::RETURN:
         os << "RETURN";
+        break;
     }
     return os;
 }

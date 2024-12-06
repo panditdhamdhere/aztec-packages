@@ -19,6 +19,19 @@ void Execution::add(ContextInterface& context, MemoryAddress a_addr, MemoryAddre
     alu.add(context, a_addr, b_addr, dst_addr);
 }
 
+// TODO: My dispatch system makes me ahve a uint8_t tag. Rethink.
+void Execution::set(ContextInterface& context, MemoryAddress dst_addr, uint8_t tag, MemoryValue value)
+{
+    context.get_memory().set(dst_addr, std::move(value), static_cast<MemoryTag>(tag));
+}
+
+void Execution::mov(ContextInterface& context, MemoryAddress src_addr, MemoryAddress dst_addr)
+{
+    auto& memory = context.get_memory();
+    auto [value, tag] = memory.get(src_addr);
+    memory.set(dst_addr, std::move(value), tag);
+}
+
 // TODO: This will need to happen in its own gadget in any case.
 void Execution::call(ContextInterface& context, MemoryAddress addr)
 {
@@ -57,6 +70,11 @@ void Execution::ret(ContextInterface& context, MemoryAddress ret_offset, MemoryA
     }
 }
 
+void Execution::jump(ContextInterface& context, uint32_t loc)
+{
+    context.set_next_pc(loc);
+}
+
 void Execution::jumpi(ContextInterface& context, MemoryAddress cond_addr, uint32_t loc)
 {
     auto& memory = context.get_memory();
@@ -85,31 +103,31 @@ void Execution::execution_loop()
         auto& context = context_stack.current();
 
         // This try-catch is here to ignore any unhandled opcodes.
-        try {
-            auto pc = context.get_pc();
-            Instruction instruction = context.get_bytecode_manager().read_instruction(pc);
-            context.set_next_pc(pc + instruction.size_in_bytes);
-            info("@", pc, ": ", instruction.to_string());
+        // try {
+        auto pc = context.get_pc();
+        Instruction instruction = context.get_bytecode_manager().read_instruction(pc);
+        context.set_next_pc(pc + instruction.size_in_bytes);
+        info("@", pc, " ", instruction.to_string());
 
-            ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
-            const InstructionSpec& spec = instruction_info_db.get(opcode); // Unused for now.
-            std::vector<Operand> resolved_operands = addressing.resolve(instruction, context.get_memory());
+        ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
+        const InstructionSpec& spec = instruction_info_db.get(opcode); // Unused for now.
+        std::vector<Operand> resolved_operands = addressing.resolve(instruction, context.get_memory());
 
-            dispatch_opcode(opcode, resolved_operands);
+        dispatch_opcode(opcode, resolved_operands);
 
-            events.emit({ .pc = pc,
-                          .contract_class_id = context.get_bytecode_manager().get_class_id(),
-                          .wire_instruction = std::move(instruction),
-                          .instruction_spec = spec,
-                          .opcode = opcode,
-                          .resolved_operands = std::move(resolved_operands) });
+        events.emit({ .pc = pc,
+                      .contract_class_id = context.get_bytecode_manager().get_class_id(),
+                      .wire_instruction = std::move(instruction),
+                      .instruction_spec = spec,
+                      .opcode = opcode,
+                      .resolved_operands = std::move(resolved_operands) });
 
-            context.set_pc(context.get_next_pc());
-        } catch (const std::exception& e) {
+        context.set_pc(context.get_next_pc());
+        /*} catch (const std::exception& e) {
             info("Error: ", e.what());
             context.set_pc(context.get_next_pc());
             continue;
-        }
+        }*/
     }
 }
 
@@ -119,11 +137,20 @@ void Execution::dispatch_opcode(ExecutionOpCode opcode, const std::vector<Operan
     case ExecutionOpCode::ADD:
         call_with_operands(&Execution::add, resolved_operands);
         break;
+    case ExecutionOpCode::SET:
+        call_with_operands(&Execution::set, resolved_operands);
+        break;
+    case ExecutionOpCode::MOV:
+        call_with_operands(&Execution::mov, resolved_operands);
+        break;
     case ExecutionOpCode::CALL:
         call_with_operands(&Execution::call, resolved_operands);
         break;
     case ExecutionOpCode::RETURN:
         call_with_operands(&Execution::ret, resolved_operands);
+        break;
+    case ExecutionOpCode::JUMP:
+        call_with_operands(&Execution::jump, resolved_operands);
         break;
     case ExecutionOpCode::JUMPI:
         call_with_operands(&Execution::jumpi, resolved_operands);

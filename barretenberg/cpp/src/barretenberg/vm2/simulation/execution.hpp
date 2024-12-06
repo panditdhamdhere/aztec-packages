@@ -61,6 +61,9 @@ class Execution : public ExecutionInterface {
 
     // Opcode handlers. The order of the operands matters and should be the same as the wire format.
     void add(ContextInterface& context, MemoryAddress a_addr, MemoryAddress b_addr, MemoryAddress dst_addr);
+    void set(ContextInterface& context, MemoryAddress dst_addr, uint8_t tag, MemoryValue value);
+    void mov(ContextInterface& context, MemoryAddress src_addr, MemoryAddress dst_addr);
+    void jump(ContextInterface& context, uint32_t loc);
     void jumpi(ContextInterface& context, MemoryAddress cond_addr, uint32_t loc);
     void call(ContextInterface& context, MemoryAddress addr);
     void ret(ContextInterface& context, MemoryAddress ret_offset, MemoryAddress ret_size_offset);

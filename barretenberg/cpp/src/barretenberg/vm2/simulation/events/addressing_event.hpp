@@ -12,15 +12,16 @@
 namespace bb::avm::simulation {
 
 enum class AddressingEventError {
-    NO_ERROR,
     STACK_POINTER_INVALID_ADDRESS,
     RELATIVE_COMPUTATION_OOB,
     INDIRECT_INVALID_ADDRESS,
+    FINAL_ADDRESS_INVALID,
 };
 
 struct AddressingException : public std::runtime_error {
     explicit AddressingException(AddressingEventError e, size_t operand_idx = 0)
-        : std::runtime_error("Addressing error")
+        : std::runtime_error("Addressing error: " + std::to_string(static_cast<int>(e)) + " at operand " +
+                             std::to_string(operand_idx))
         , error(e)
         , operand_idx(operand_idx)
     {}
