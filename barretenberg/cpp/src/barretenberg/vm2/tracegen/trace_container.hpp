@@ -13,7 +13,7 @@ namespace bb::avm::tracegen {
 
 class TraceContainer {
   public:
-    using FF = AvmFlavorSettings::FF;
+    using FF = Avm2FlavorSettings::FF;
 
     void set(Column col, size_t row, const FF& value);
     // Bulk setting for a given row.

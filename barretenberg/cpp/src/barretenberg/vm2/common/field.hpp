@@ -6,6 +6,6 @@
 
 namespace bb::avm::simulation {
 
-using FF = AvmFlavorSettings::FF;
+using FF = Avm2FlavorSettings::FF;
 
 } // namespace bb::avm::simulation

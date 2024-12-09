@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
-#include "barretenberg/vm2/constraining/relations/execution.hpp"
 #include "barretenberg/vm2/constraining/testing/check_relation.hpp"
 #include "barretenberg/vm2/generated/flavor_settings.hpp"
+#include "barretenberg/vm2/generated/relations/execution.hpp"
 #include "barretenberg/vm2/testing/macros.hpp"
 #include "barretenberg/vm2/tracegen/test_trace_container.hpp"
 
@@ -13,31 +13,32 @@ namespace bb::avm::constraining {
 namespace {
 
 using tracegen::TestTraceContainer;
-using FF = AvmFlavorSettings::FF;
+using FF = Avm2FlavorSettings::FF;
 using C = Column;
+using execution = bb::avm2::execution<FF>;
 
 TEST(AvmConstrainingTest, ExecutionPositive)
 {
     // clang-format off
     TestTraceContainer trace({
-        {{ C::pc, 0 }},
-        {{ C::pc, 1 }, { C::last, 1 }}
+        {{ C::execution_pc, 0 }},
+        {{ C::execution_pc, 1 }, { C::execution_last, 1 }}
     });
     // clang-format on
 
-    check_relation<execution<FF>>(trace.as_rows());
+    check_relation<execution>(trace.as_rows());
 }
 
 TEST(AvmConstrainingTest, ExecutionNegativePc)
 {
     // clang-format off
     TestTraceContainer trace({
-        {{ C::pc, 0 }},
-        {{ C::pc, 2 }, { C::last, 1 }}
+        {{ C::execution_pc, 0 }},
+        {{ C::execution_pc, 2 }, { C::execution_last, 1 }}
     });
     // clang-format on
 
-    EXPECT_THROW_WITH_MESSAGE(check_relation<execution<FF>>(trace.as_rows(), 0), "subrelation 0.*row 0");
+    EXPECT_THROW_WITH_MESSAGE(check_relation<execution>(trace.as_rows(), execution::SR_PC_INCREMENT), "PC_INCREMENT");
 }
 
 } // namespace

@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "barretenberg/common/log.hpp"
-#include "barretenberg/vm/avm/trace/gadgets/range_check.hpp"
 #include "barretenberg/vm2/common/aztec_types.hpp"
 #include "barretenberg/vm2/common/field.hpp"
 #include "barretenberg/vm2/simulation/addressing.hpp"

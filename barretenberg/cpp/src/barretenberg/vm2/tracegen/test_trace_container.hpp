@@ -11,7 +11,7 @@ namespace bb::avm::tracegen {
 
 class TestTraceContainer : public TraceContainer {
   public:
-    using Row = AvmFullRow<FF>;
+    using Row = Avm2FullRow<FF>;
     using RowTraceContainer = std::vector<Row>;
 
     TestTraceContainer() = default;

@@ -1,0 +1,17 @@
+include "alu.pil";
+
+namespace execution(256);
+
+pol commit last;
+pol commit pc;
+pol commit clk;
+
+#[PC_INCREMENT]
+(1 - last) * (pc' - pc - 1) = 0;
+
+// These are needed to have a non-empty set of columns for each type.
+pol constant zero;
+pol commit selector;
+pol public input;
+#[LOOKUP_DUMMY]
+selector {clk} in selector {clk};
