@@ -3,7 +3,7 @@
 #include "barretenberg/vm2/simulation/execution.hpp"
 #include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 // Temporary.
 struct Tx {
@@ -22,4 +22,4 @@ class TxExecution final {
     ExecutionInterface& call_execution;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

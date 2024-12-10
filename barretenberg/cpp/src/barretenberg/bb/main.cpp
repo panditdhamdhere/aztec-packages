@@ -744,7 +744,7 @@ void avm_prove(const std::filesystem::path& public_inputs_path,
 
 void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem::path& output_path)
 {
-    using namespace avm;
+    using namespace avm2;
     // vinfo("initializing crs with size: ", avm_trace::Execution::SRS_SIZE);
     // init_bn254_crs(avm_trace::Execution::SRS_SIZE);
 

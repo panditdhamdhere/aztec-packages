@@ -3,7 +3,7 @@
 #include <ostream>
 #include <string>
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 /**
  * All AVM opcodes (Keep in sync with TS counterpart code opcodes.ts)
@@ -123,4 +123,4 @@ enum class ExecutionOpCode {
 
 std::ostream& operator<<(std::ostream& os, const ExecutionOpCode& op);
 
-} // namespace bb::avm
+} // namespace bb::avm2

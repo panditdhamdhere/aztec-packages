@@ -7,9 +7,9 @@
 #include "barretenberg/polynomials/barycentric.hpp"
 #include "barretenberg/polynomials/univariate.hpp"
 
-namespace bb {
+namespace bb::avm2 {
 
-class Avm2FlavorSettings {
+class AvmFlavorSettings {
   public:
     using Curve = curve::BN254;
     using G1 = Curve::Group;
@@ -26,4 +26,4 @@ class Avm2FlavorSettings {
     using RelationSeparator = FF;
 };
 
-} // namespace bb
+} // namespace bb::avm2

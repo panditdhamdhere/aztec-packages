@@ -26,23 +26,23 @@
 // Metaprogramming to concatenate tuple types.
 template <typename... input_t> using tuple_cat_t = decltype(std::tuple_cat(std::declval<input_t>()...));
 
-namespace bb {
+namespace bb::avm2 {
 
-class Avm2Flavor {
+class AvmFlavor {
   public:
-    using Curve = Avm2FlavorSettings::Curve;
-    using G1 = Avm2FlavorSettings::G1;
-    using PCS = Avm2FlavorSettings::PCS;
+    using Curve = AvmFlavorSettings::Curve;
+    using G1 = AvmFlavorSettings::G1;
+    using PCS = AvmFlavorSettings::PCS;
 
-    using FF = Avm2FlavorSettings::FF;
-    using Polynomial = Avm2FlavorSettings::Polynomial;
-    using PolynomialHandle = Avm2FlavorSettings::PolynomialHandle;
-    using GroupElement = Avm2FlavorSettings::GroupElement;
-    using Commitment = Avm2FlavorSettings::Commitment;
-    using CommitmentHandle = Avm2FlavorSettings::CommitmentHandle;
-    using CommitmentKey = Avm2FlavorSettings::CommitmentKey;
-    using VerifierCommitmentKey = Avm2FlavorSettings::VerifierCommitmentKey;
-    using RelationSeparator = Avm2FlavorSettings::RelationSeparator;
+    using FF = AvmFlavorSettings::FF;
+    using Polynomial = AvmFlavorSettings::Polynomial;
+    using PolynomialHandle = AvmFlavorSettings::PolynomialHandle;
+    using GroupElement = AvmFlavorSettings::GroupElement;
+    using Commitment = AvmFlavorSettings::Commitment;
+    using CommitmentHandle = AvmFlavorSettings::CommitmentHandle;
+    using CommitmentKey = AvmFlavorSettings::CommitmentKey;
+    using VerifierCommitmentKey = AvmFlavorSettings::VerifierCommitmentKey;
+    using RelationSeparator = AvmFlavorSettings::RelationSeparator;
 
     // This flavor would not be used with ZK Sumcheck
     static constexpr bool HasZK = false;
@@ -118,7 +118,7 @@ class Avm2Flavor {
       public:
         using DataType = DataType_;
 
-        DEFINE_FLAVOR_MEMBERS(DataType, PRECOMPUTED_ENTITIES)
+        DEFINE_FLAVOR_MEMBERS(DataType, AVM2_PRECOMPUTED_ENTITIES)
 
         RefVector<DataType> get_selectors() { return get_all(); }
         RefVector<DataType> get_sigma_polynomials() { return {}; }
@@ -129,23 +129,23 @@ class Avm2Flavor {
   private:
     template <typename DataType> class WireEntities {
       public:
-        DEFINE_FLAVOR_MEMBERS(DataType, WIRE_ENTITIES)
+        DEFINE_FLAVOR_MEMBERS(DataType, AVM2_WIRE_ENTITIES)
     };
 
     template <typename DataType> class DerivedWitnessEntities {
       public:
-        DEFINE_FLAVOR_MEMBERS(DataType, DERIVED_WITNESS_ENTITIES)
+        DEFINE_FLAVOR_MEMBERS(DataType, AVM2_DERIVED_WITNESS_ENTITIES)
     };
 
     template <typename DataType> class ShiftedEntities {
       public:
-        DEFINE_FLAVOR_MEMBERS(DataType, SHIFTED_ENTITIES)
+        DEFINE_FLAVOR_MEMBERS(DataType, AVM2_SHIFTED_ENTITIES)
     };
 
     template <typename DataType, typename PrecomputedAndWitnessEntitiesSuperset>
     static auto get_to_be_shifted([[maybe_unused]] PrecomputedAndWitnessEntitiesSuperset& entities)
     {
-        return RefArray<DataType, NUM_SHIFTED_ENTITIES>{ TO_BE_SHIFTED(entities) };
+        return RefArray<DataType, NUM_SHIFTED_ENTITIES>{ AVM2_TO_BE_SHIFTED(entities) };
     }
 
   public:
@@ -175,7 +175,7 @@ class Avm2Flavor {
             return concatenate(PrecomputedEntities<DataType>::get_labels(), WitnessEntities<DataType>::get_labels());
         }
 
-        auto get_to_be_shifted() { return Avm2Flavor::get_to_be_shifted<DataType>(*this); }
+        auto get_to_be_shifted() { return AvmFlavor::get_to_be_shifted<DataType>(*this); }
         auto get_shifted() { return ShiftedEntities<DataType>::get_all(); }
         auto get_precomputed() { return PrecomputedEntities<DataType>::get_all(); }
     };
@@ -206,7 +206,7 @@ class Avm2Flavor {
         auto get_witness_polynomials() { return WitnessEntities<Polynomial>::get_all(); }
         auto get_precomputed_polynomials() { return PrecomputedEntities<Polynomial>::get_all(); }
         auto get_selectors() { return PrecomputedEntities<Polynomial>::get_all(); }
-        auto get_to_be_shifted() { return Avm2Flavor::get_to_be_shifted<Polynomial>(*this); }
+        auto get_to_be_shifted() { return AvmFlavor::get_to_be_shifted<Polynomial>(*this); }
         // This order matters! must match get_unshifted in entity classes
         auto get_all() { return concatenate(get_precomputed_polynomials(), get_witness_polynomials()); }
     };
@@ -252,7 +252,7 @@ class Avm2Flavor {
         using BaseDataType = const FF;
         using DataType = BaseDataType&;
 
-        DEFINE_FLAVOR_MEMBERS(DataType, ALL_ENTITIES)
+        DEFINE_FLAVOR_MEMBERS(DataType, AVM2_ALL_ENTITIES)
 
         AllConstRefValues(const RefArray<BaseDataType, NUM_ALL_ENTITIES>& il);
     };
@@ -359,4 +359,4 @@ class Avm2Flavor {
     };
 };
 
-} // namespace bb
+} // namespace bb::avm2

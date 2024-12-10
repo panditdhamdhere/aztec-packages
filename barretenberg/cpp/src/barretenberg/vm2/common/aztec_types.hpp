@@ -5,7 +5,7 @@
 
 #include "barretenberg/vm2/common/field.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 using AztecAddress = simulation::FF;
 using ContractClassId = simulation::FF;
@@ -34,4 +34,4 @@ struct ContractClass {
     std::vector<uint8_t> packed_bytecode;
 };
 
-} // namespace bb::avm
+} // namespace bb::avm2

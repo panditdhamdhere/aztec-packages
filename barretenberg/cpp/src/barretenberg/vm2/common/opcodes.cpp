@@ -3,7 +3,7 @@
 #include <ostream>
 #include <string>
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 std::ostream& operator<<(std::ostream& os, const WireOpCode& op)
 {
@@ -247,4 +247,4 @@ std::ostream& operator<<(std::ostream& os, const ExecutionOpCode& op)
     return os;
 }
 
-} // namespace bb::avm
+} // namespace bb::avm2

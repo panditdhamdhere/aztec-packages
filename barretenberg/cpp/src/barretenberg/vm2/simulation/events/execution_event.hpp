@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/common/opcodes.hpp"
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 struct ExecutionEvent {
     uint32_t pc;
@@ -28,4 +28,4 @@ struct ExecutionEvent {
     }
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

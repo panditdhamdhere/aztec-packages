@@ -2,15 +2,15 @@
 
 #include <tuple>
 
-#include "barretenberg/honk/proof_system/types/proof.hpp"
+#include "barretenberg/vm2/proving_helper.hpp"
 #include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 class AvmAPI {
   public:
-    using AvmProof = bb::HonkProof;
-    using AvmVerificationKey = int;
+    using AvmProof = AvmProvingHelper::Proof;
+    using AvmVerificationKey = std::vector<uint8_t>;
     using Inputs = simulation::AvmInputs;
 
     AvmAPI() = default;
@@ -18,4 +18,4 @@ class AvmAPI {
     std::tuple<AvmProof, AvmVerificationKey> prove(const Inputs& inputs);
 };
 
-} // namespace bb::avm
+} // namespace bb::avm2

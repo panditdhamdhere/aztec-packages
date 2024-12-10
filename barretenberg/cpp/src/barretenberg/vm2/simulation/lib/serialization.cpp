@@ -15,7 +15,7 @@
 #include "barretenberg/numeric/uint256/uint256.hpp"
 #include "barretenberg/vm2/common/opcodes.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 namespace {
 
 // Possible types for an instruction's operand in its wire format.
@@ -437,4 +437,4 @@ std::string Instruction::to_string() const
     return oss.str();
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

@@ -7,7 +7,7 @@
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 
 class AluTraceBuilder final {
   public:
@@ -15,4 +15,4 @@ class AluTraceBuilder final {
                  TraceContainer& trace);
 };
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

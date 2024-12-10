@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/simulation/events/execution_event.hpp"
 #include "barretenberg/vm2/simulation/events/memory_event.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 struct EventsContainer {
     EventEmitterInterface<ExecutionEvent>::Container execution;
@@ -20,4 +20,4 @@ struct EventsContainer {
     EventEmitterInterface<BytecodeDecompositionEvent>::Container bytecode_decomposition;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

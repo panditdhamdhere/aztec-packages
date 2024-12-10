@@ -5,7 +5,7 @@
 #include "barretenberg/vm2/simulation/events/events_container.hpp"
 #include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 class AvmSimulationHelper {
   public:
@@ -25,4 +25,4 @@ class AvmSimulationHelper {
     simulation::AvmInputs inputs;
 };
 
-} // namespace bb::avm
+} // namespace bb::avm2

@@ -4,7 +4,7 @@
 
 #include "barretenberg/vm2/common/field.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 enum class MemoryTag {
     FF,
@@ -20,4 +20,4 @@ using MemoryAddress = std::size_t;
 using MemoryValue = simulation::FF;
 constexpr auto MemoryAddressTag = MemoryTag::U32;
 
-} // namespace bb::avm
+} // namespace bb::avm2

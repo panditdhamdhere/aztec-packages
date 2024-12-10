@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/common/opcodes.hpp"
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 // Question: ideally we'd avoid exploding the whole thing here, but we could if needed to.
 // It really depends on how we want to separate the concerns between simulation and tracegen.
@@ -31,4 +31,4 @@ struct BytecodeDecompositionEvent {
     Instruction instruction;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

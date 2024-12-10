@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/simulation/memory.hpp"
 #include "barretenberg/vm2/simulation/testing/mock_context.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 namespace {
 
 using ::testing::ReturnRef;
@@ -41,4 +41,4 @@ TEST(AvmSimulationAluTest, Add)
 }
 
 } // namespace
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

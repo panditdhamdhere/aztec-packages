@@ -5,12 +5,12 @@
 #include "barretenberg/vm2/tracegen/alu_trace_builder.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
-using namespace bb::avm::simulation;
-using namespace bb::avm::tracegen;
+using namespace bb::avm2::simulation;
+using namespace bb::avm2::tracegen;
 
-TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer& events)
+TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
 {
     TraceContainer trace;
 
@@ -21,4 +21,4 @@ TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer& events)
     return trace;
 }
 
-} // namespace bb::avm
+} // namespace bb::avm2

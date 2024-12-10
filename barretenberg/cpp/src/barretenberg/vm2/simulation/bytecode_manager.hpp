@@ -13,7 +13,7 @@
 #include "barretenberg/vm2/simulation/lib/raw_data_db.hpp"
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 using BytecodeId = uint32_t;
 
@@ -89,4 +89,4 @@ class BytecodeManager : public BytecodeManagerInterface {
     TxBytecodeManagerInterface& tx_bytecode_manager;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

@@ -1,6 +1,6 @@
 #include "barretenberg/vm2/simulation/tx_execution.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 void TxExecution::simulate(const Tx& tx)
 {
@@ -18,4 +18,4 @@ void TxExecution::simulate(const Tx& tx)
     }
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

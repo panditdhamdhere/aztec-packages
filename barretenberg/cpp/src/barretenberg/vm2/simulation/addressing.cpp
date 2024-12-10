@@ -12,7 +12,7 @@
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryInterface& memory) const
 {
@@ -87,4 +87,4 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
     return event.resolved_operands;
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

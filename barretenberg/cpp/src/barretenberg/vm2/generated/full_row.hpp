@@ -8,12 +8,12 @@
 #include "barretenberg/common/ref_vector.hpp"
 #include "columns.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
-template <typename FF_> struct Avm2FullRow {
+template <typename FF_> struct AvmFullRow {
     using FF = FF_;
 
-    FF ALL_ENTITIES;
+    FF AVM2_ALL_ENTITIES;
 
     RefVector<const FF> as_vector() const;
     static std::vector<std::string> names();
@@ -33,13 +33,13 @@ template <typename FF_> struct Avm2FullRow {
     }
 };
 
-template <typename FF> std::ostream& operator<<(std::ostream& os, Avm2FullRow<FF> const& row);
+template <typename FF> std::ostream& operator<<(std::ostream& os, AvmFullRow<FF> const& row);
 
-} // namespace bb::avm
+} // namespace bb::avm2
 
 namespace bb {
 
 // Expose this in the bb namespace. For compatibility with the old witgen.
-using avm::Avm2FullRow;
+using avm2::AvmFullRow;
 
 } // namespace bb

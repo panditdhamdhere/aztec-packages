@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/common/memory_types.hpp"
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 enum class AddressingEventError {
     STACK_POINTER_INVALID_ADDRESS,
@@ -41,4 +41,4 @@ struct AddressingEvent {
     std::optional<AddressingException> error;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

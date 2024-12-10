@@ -6,7 +6,7 @@
 #include "barretenberg/vm2/simulation/alu.hpp"
 #include "barretenberg/vm2/simulation/context.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockAlu : public AluInterface {
   public:
@@ -20,4 +20,4 @@ class MockAlu : public AluInterface {
                 (override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

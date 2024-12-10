@@ -12,7 +12,7 @@
 #include "barretenberg/vm2/simulation/events/memory_event.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class ContextInterface {
   public:
@@ -121,4 +121,4 @@ class ContextProvider : public ContextProviderInterface {
     EventEmitterInterface<MemoryEvent>& memory_events;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

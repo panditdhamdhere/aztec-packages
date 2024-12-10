@@ -2,7 +2,7 @@
 #include "full_row.hpp"
 #include "flavor_settings.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 namespace {
 
 template <typename FF> std::string field_to_string(const FF& ff)
@@ -17,7 +17,7 @@ template <typename FF> std::string field_to_string(const FF& ff)
 
 } // namespace
 
-template <typename FF> std::vector<std::string> Avm2FullRow<FF>::names()
+template <typename FF> std::vector<std::string> AvmFullRow<FF>::names()
 {
     return { "execution_zero",   "execution_input",
              "alu_dst_addr",     "alu_ia",
@@ -29,7 +29,7 @@ template <typename FF> std::vector<std::string> Avm2FullRow<FF>::names()
              "lookup_dummy_inv", "lookup_dummy_counts" };
 }
 
-template <typename FF> RefVector<const FF> Avm2FullRow<FF>::as_vector() const
+template <typename FF> RefVector<const FF> AvmFullRow<FF>::as_vector() const
 {
     return RefVector<const FF>{
         execution_zero,   execution_input,
@@ -43,7 +43,7 @@ template <typename FF> RefVector<const FF> Avm2FullRow<FF>::as_vector() const
     };
 }
 
-template <typename FF> std::ostream& operator<<(std::ostream& os, Avm2FullRow<FF> const& row)
+template <typename FF> std::ostream& operator<<(std::ostream& os, AvmFullRow<FF> const& row)
 {
     for (const auto& ff : row.as_vector()) {
         os << field_to_string(ff) << ", ";
@@ -52,8 +52,8 @@ template <typename FF> std::ostream& operator<<(std::ostream& os, Avm2FullRow<FF
 }
 
 // Explicit template instantiation.
-template std::ostream& operator<<(std::ostream& os, Avm2FullRow<Avm2FlavorSettings::FF> const& row);
-template std::vector<std::string> Avm2FullRow<Avm2FlavorSettings::FF>::names();
-template RefVector<const Avm2FlavorSettings::FF> Avm2FullRow<Avm2FlavorSettings::FF>::as_vector() const;
+template std::ostream& operator<<(std::ostream& os, AvmFullRow<AvmFlavorSettings::FF> const& row);
+template std::vector<std::string> AvmFullRow<AvmFlavorSettings::FF>::names();
+template RefVector<const AvmFlavorSettings::FF> AvmFullRow<AvmFlavorSettings::FF>::as_vector() const;
 
-} // namespace bb::avm
+} // namespace bb::avm2

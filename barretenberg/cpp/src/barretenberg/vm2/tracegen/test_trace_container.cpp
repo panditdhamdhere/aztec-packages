@@ -1,6 +1,6 @@
 #include "barretenberg/vm2/tracegen/test_trace_container.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 namespace {
 
 std::optional<ColumnAndShifts> shift_column(Column c)
@@ -54,4 +54,4 @@ TestTraceContainer::RowTraceContainer TestTraceContainer::as_rows() const
     return full_row_trace;
 }
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

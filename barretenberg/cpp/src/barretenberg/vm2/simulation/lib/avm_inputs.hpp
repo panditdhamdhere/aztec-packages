@@ -8,7 +8,7 @@
 #include "barretenberg/vm2/common/aztec_types.hpp"
 #include "barretenberg/vm2/common/field.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 struct PublicKeysHint {
     AffinePoint masterNullifierPublicKey;
@@ -68,4 +68,4 @@ struct AvmInputs {
     MSGPACK_FIELDS(enqueuedCalls, hints);
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

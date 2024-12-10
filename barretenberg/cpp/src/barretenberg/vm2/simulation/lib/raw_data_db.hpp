@@ -3,7 +3,7 @@
 #include "barretenberg/vm2/common/aztec_types.hpp"
 #include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 // This class interacts with the external world, without emiting any simulation events.
 class RawDataDBInterface {
@@ -28,4 +28,4 @@ class HintedRawDataDB : public RawDataDBInterface {
     mutable size_t contract_classes_idx = 0;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

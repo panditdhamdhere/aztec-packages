@@ -5,7 +5,7 @@
 
 #include "barretenberg/vm2/common/memory_types.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 enum class MemoryMode {
     READ,
@@ -20,4 +20,4 @@ struct MemoryEvent {
     uint32_t space_id;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

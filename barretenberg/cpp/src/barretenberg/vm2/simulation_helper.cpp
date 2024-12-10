@@ -17,9 +17,9 @@
 #include "barretenberg/vm2/simulation/lib/raw_data_db.hpp"
 #include "barretenberg/vm2/simulation/tx_execution.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
-using namespace bb::avm::simulation;
+using namespace bb::avm2::simulation;
 
 namespace {
 
@@ -82,4 +82,4 @@ void AvmSimulationHelper::simulate_fast()
     simulate_with_settings<FastSettings>();
 }
 
-} // namespace bb::avm
+} // namespace bb::avm2

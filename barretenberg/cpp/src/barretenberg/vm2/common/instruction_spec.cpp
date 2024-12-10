@@ -3,7 +3,7 @@
 #include "barretenberg/vm/aztec_constants.hpp" // Move over.
 #include "barretenberg/vm2/common/opcodes.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 const std::unordered_map<ExecutionOpCode, InstructionSpec> INSTRUCTION_SPEC = {
     { ExecutionOpCode::ADD,
@@ -38,4 +38,4 @@ const std::unordered_map<WireOpCode, ExecutionOpCode> OPCODE_MAP = {
     { WireOpCode::MOV_8, ExecutionOpCode::MOV },    { WireOpCode::MOV_16, ExecutionOpCode::MOV },
 };
 
-} // namespace bb::avm
+} // namespace bb::avm2

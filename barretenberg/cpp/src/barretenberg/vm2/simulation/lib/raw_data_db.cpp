@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 HintedRawDataDB::HintedRawDataDB(const ExecutionHints& hints)
     : contract_instances(hints.contractInstances)
@@ -48,4 +48,4 @@ ContractClass HintedRawDataDB::get_contract_class(const ContractClassId& class_i
     };
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

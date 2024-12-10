@@ -3,7 +3,7 @@
 #include <cassert>
 #include <gmock/gmock.h>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockRawDataDB : public RawDataDBInterface {
     // https://google.github.io/googletest/gmock_cook_book.html#making-the-compilation-faster
@@ -14,4 +14,4 @@ class MockRawDataDB : public RawDataDBInterface {
     MOCK_METHOD(ContractClass, get_contract_class, (const ContractClassId& class_id), (const, override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

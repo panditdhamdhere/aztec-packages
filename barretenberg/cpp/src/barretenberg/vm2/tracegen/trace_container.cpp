@@ -1,6 +1,6 @@
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 
 void TraceContainer::set(Column col, size_t row, const FF& value)
 {
@@ -26,4 +26,4 @@ size_t TraceContainer::get_column_size(Column col) const
     return it == keys.end() ? 0 : *it + 1;
 }
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

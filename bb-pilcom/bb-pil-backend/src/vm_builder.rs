@@ -138,15 +138,6 @@ pub fn analyzed_to_cpp<F: FieldElement>(
         &all_cols_with_shifts,
     );
 
-    if vm_name == "Avm2" {
-        println!("Skipping the creation of the prover, verifier, etc.");
-        return;
-    }
-
-    // ----------------------- Create the composer files -----------------------
-    bb_files.create_composer_cpp(vm_name);
-    bb_files.create_composer_hpp(vm_name);
-
     // ----------------------- Create the Verifier files -----------------------
     bb_files.create_verifier_cpp(vm_name, &public_inputs);
     bb_files.create_verifier_hpp(vm_name);

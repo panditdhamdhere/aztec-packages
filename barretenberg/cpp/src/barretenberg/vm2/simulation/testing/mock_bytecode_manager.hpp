@@ -8,7 +8,7 @@
 
 #include "barretenberg/vm2/simulation/bytecode_manager.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockBytecodeManager : public BytecodeManagerInterface {
   public:
@@ -20,4 +20,4 @@ class MockBytecodeManager : public BytecodeManagerInterface {
     MOCK_METHOD(ContractClassId, get_class_id, (), (const, override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

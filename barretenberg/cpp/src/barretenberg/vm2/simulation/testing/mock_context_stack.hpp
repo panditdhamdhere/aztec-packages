@@ -7,7 +7,7 @@
 
 #include "barretenberg/vm2/simulation/context_stack.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockContextStack : public ContextStackInterface {
   public:
@@ -22,4 +22,4 @@ class MockContextStack : public ContextStackInterface {
     MOCK_METHOD(bool, empty, (), (override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

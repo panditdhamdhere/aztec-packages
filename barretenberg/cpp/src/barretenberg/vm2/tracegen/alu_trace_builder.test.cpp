@@ -8,7 +8,7 @@
 #include "barretenberg/vm2/tracegen/alu_trace_builder.hpp"
 #include "barretenberg/vm2/tracegen/test_trace_container.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 namespace {
 
 using simulation::AluOperation;
@@ -43,4 +43,4 @@ TEST(AvmTraceGenAluTest, TraceGeneration)
 }
 
 } // namespace
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class AluInterface {
   public:
@@ -30,4 +30,4 @@ class Alu : public AluInterface {
     EventEmitterInterface<AluEvent>& events;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

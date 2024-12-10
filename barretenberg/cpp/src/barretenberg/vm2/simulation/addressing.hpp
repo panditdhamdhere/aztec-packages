@@ -12,7 +12,7 @@
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class AddressingInterface {
   public:
@@ -36,4 +36,4 @@ class Addressing final : public AddressingInterface {
     EventEmitterInterface<AddressingEvent>& events;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

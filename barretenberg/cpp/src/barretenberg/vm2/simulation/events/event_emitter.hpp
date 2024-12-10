@@ -2,7 +2,7 @@
 
 #include <list>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 template <typename Event> class EventEmitterInterface {
   public:
@@ -47,4 +47,4 @@ template <typename Event> class NoopEventEmitter : public EventEmitterInterface<
     Container dump_events() override { return {}; }
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

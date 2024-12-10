@@ -9,7 +9,7 @@
 #include <variant>
 #include <vector>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class Operand {
   public:
@@ -64,4 +64,4 @@ struct Instruction {
  */
 Instruction decode_instruction(std::span<const uint8_t> bytecode, size_t pos);
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

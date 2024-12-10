@@ -5,7 +5,7 @@
 
 #include "barretenberg/vm2/simulation/context.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 // Manages the stack of contexts.
 // Right now it's simple, but I'm pretty sure this will generate its own events (and trace).
@@ -34,4 +34,4 @@ class ContextStack : public ContextStackInterface {
     std::stack<std::unique_ptr<ContextInterface>> stack;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

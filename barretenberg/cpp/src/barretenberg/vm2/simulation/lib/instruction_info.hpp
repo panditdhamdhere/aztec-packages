@@ -6,7 +6,7 @@
 #include "barretenberg/vm2/common/instruction_spec.hpp"
 #include "barretenberg/vm2/common/opcodes.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class InstructionInfoDBInterface {
   public:
@@ -38,4 +38,4 @@ class InstructionInfoDB : public InstructionInfoDBInterface {
     }
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

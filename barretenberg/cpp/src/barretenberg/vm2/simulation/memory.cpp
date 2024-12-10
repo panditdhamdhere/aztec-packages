@@ -5,7 +5,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 bool MemoryInterface::is_valid_address(const MemoryValue& address)
 {
@@ -52,4 +52,4 @@ std::pair<std::vector<MemoryValue>, std::vector<MemoryTag>> Memory::get_slice(Me
     return { std::move(values), std::move(tags) };
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

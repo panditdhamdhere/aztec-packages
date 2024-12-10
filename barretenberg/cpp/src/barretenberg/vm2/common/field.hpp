@@ -4,8 +4,8 @@
 
 #include "barretenberg/vm2/generated/flavor_settings.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
-using FF = Avm2FlavorSettings::FF;
+using FF = AvmFlavorSettings::FF;
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

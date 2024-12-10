@@ -12,7 +12,7 @@
 #include "barretenberg/vm2/simulation/context.hpp"
 #include "barretenberg/vm2/simulation/events/execution_event.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 void Execution::add(ContextInterface& context, MemoryAddress a_addr, MemoryAddress b_addr, MemoryAddress dst_addr)
 {
@@ -175,4 +175,4 @@ inline void Execution::call_with_operands(void (Execution::*f)(ContextInterface&
     }(operand_indices);
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

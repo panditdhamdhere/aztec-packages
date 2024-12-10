@@ -4,7 +4,7 @@
 
 #include "barretenberg/serialize/msgpack.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 AvmInputs AvmInputs::from(const std::vector<uint8_t>& data)
 {
@@ -13,4 +13,4 @@ AvmInputs AvmInputs::from(const std::vector<uint8_t>& data)
     return inputs;
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

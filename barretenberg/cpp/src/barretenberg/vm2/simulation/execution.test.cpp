@@ -21,7 +21,7 @@
 #include "barretenberg/vm2/simulation/testing/mock_context_stack.hpp"
 #include "barretenberg/vm2/simulation/testing/mock_memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 namespace {
 
 using ::testing::_;
@@ -111,4 +111,4 @@ TEST_F(AvmSimulationExecutionTest, ReturnNotTopLevel)
 // }
 
 } // namespace
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

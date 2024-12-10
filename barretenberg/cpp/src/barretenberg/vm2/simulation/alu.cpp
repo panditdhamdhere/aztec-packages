@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 void Alu::add(ContextInterface& context, MemoryAddress a_addr, MemoryAddress b_addr, MemoryAddress dst_addr)
 {
@@ -26,4 +26,4 @@ void Alu::add(ContextInterface& context, MemoryAddress a_addr, MemoryAddress b_a
                   .res = c });
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

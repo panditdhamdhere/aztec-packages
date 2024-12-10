@@ -8,7 +8,7 @@
 #include "barretenberg/vm2/simulation/context.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockContext : public ContextInterface {
   public:
@@ -40,4 +40,4 @@ class MockContextProvider : public ContextProviderInterface {
                 (const override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

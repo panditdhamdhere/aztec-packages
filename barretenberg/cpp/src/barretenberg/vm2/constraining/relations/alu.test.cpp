@@ -9,7 +9,7 @@
 #include "barretenberg/vm2/testing/macros.hpp"
 #include "barretenberg/vm2/tracegen/test_trace_container.hpp"
 
-namespace bb::avm::constraining {
+namespace bb::avm2::constraining {
 namespace {
 
 using tracegen::TestTraceContainer;
@@ -53,4 +53,4 @@ TEST(AvmConstrainingTest, AluNegativeAdd)
 }
 
 } // namespace
-} // namespace bb::avm::constraining
+} // namespace bb::avm2::constraining

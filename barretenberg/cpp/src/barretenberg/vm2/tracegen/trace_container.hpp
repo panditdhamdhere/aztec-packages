@@ -9,11 +9,11 @@
 #include "barretenberg/vm2/generated/columns.hpp"
 #include "barretenberg/vm2/generated/flavor_settings.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 
 class TraceContainer {
   public:
-    using FF = Avm2FlavorSettings::FF;
+    using FF = AvmFlavorSettings::FF;
 
     void set(Column col, size_t row, const FF& value);
     // Bulk setting for a given row.
@@ -26,4 +26,4 @@ class TraceContainer {
     std::unordered_map<Column, /*rows*/ std::unordered_map<size_t, FF>> trace;
 };
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

@@ -7,7 +7,7 @@
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
 #include "barretenberg/vm2/simulation/events/memory_event.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 struct ValueRefAndTag {
     const MemoryValue& value;
@@ -54,4 +54,4 @@ class Memory : public MemoryInterface {
     EventEmitterInterface<MemoryEvent>& events;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

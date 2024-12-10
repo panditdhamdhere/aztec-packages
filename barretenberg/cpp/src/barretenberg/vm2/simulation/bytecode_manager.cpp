@@ -5,7 +5,7 @@
 #include "barretenberg/vm2/simulation/lib/contract_crypto.hpp"
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 BytecodeId TxBytecodeManager::get_bytecode(const AztecAddress& address)
 {
@@ -61,4 +61,4 @@ ContractClassId TxBytecodeManager::get_class_id(BytecodeId bytecode_id) const
     return it->second.class_id;
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

@@ -8,7 +8,7 @@
 #include "barretenberg/vm2/simulation/events/alu_event.hpp"
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 
 namespace {
 
@@ -50,4 +50,4 @@ void AluTraceBuilder::process(const simulation::EventEmitterInterface<simulation
     }
 }
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

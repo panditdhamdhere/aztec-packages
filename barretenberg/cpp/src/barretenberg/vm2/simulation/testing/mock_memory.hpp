@@ -6,7 +6,7 @@
 #include "barretenberg/vm2/simulation/events/memory_event.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 class MockMemory : public MemoryInterface {
   public:
@@ -20,4 +20,4 @@ class MockMemory : public MemoryInterface {
     MOCK_METHOD(uint32_t, get_space_id, (), (const, override));
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

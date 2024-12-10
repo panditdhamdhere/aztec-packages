@@ -20,7 +20,7 @@
 #include "barretenberg/vm2/simulation/lib/serialization.hpp"
 #include "barretenberg/vm2/simulation/memory.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 struct ExecutionResult {
     std::vector<FF> returndata;
@@ -86,4 +86,4 @@ class Execution : public ExecutionInterface {
     EventEmitterInterface<ExecutionEvent>& events;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

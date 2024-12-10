@@ -7,11 +7,11 @@
 #include "barretenberg/vm2/generated/full_row.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
-namespace bb::avm::tracegen {
+namespace bb::avm2::tracegen {
 
 class TestTraceContainer : public TraceContainer {
   public:
-    using Row = Avm2FullRow<FF>;
+    using Row = AvmFullRow<FF>;
     using RowTraceContainer = std::vector<Row>;
 
     TestTraceContainer() = default;
@@ -26,4 +26,4 @@ class TestTraceContainer : public TraceContainer {
     RowTraceContainer as_rows() const;
 };
 
-} // namespace bb::avm::tracegen
+} // namespace bb::avm2::tracegen

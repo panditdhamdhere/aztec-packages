@@ -4,7 +4,7 @@
 #include "barretenberg/crypto/poseidon2/poseidon2_params.hpp"
 #include "barretenberg/vm/aztec_constants.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 using poseidon2 = crypto::Poseidon2<crypto::Poseidon2Bn254ScalarFieldParams>;
 
@@ -41,4 +41,4 @@ FF compute_contract_class_id(const FF& artifact_hash, const FF& private_fn_root,
         { GENERATOR_INDEX__CONTRACT_LEAF, artifact_hash, private_fn_root, public_bytecode_commitment });
 }
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

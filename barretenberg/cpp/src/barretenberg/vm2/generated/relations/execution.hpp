@@ -42,6 +42,7 @@ template <typename FF> class execution : public Relation<executionImpl<FF>> {
         return std::to_string(index);
     }
 
+    // Subrelation indices constants, to be used in tests.
     static constexpr size_t SR_PC_INCREMENT = 0;
 };
 

@@ -6,7 +6,7 @@
 #include "barretenberg/vm2/common/memory_types.hpp"
 #include "barretenberg/vm2/common/opcodes.hpp"
 
-namespace bb::avm::simulation {
+namespace bb::avm2::simulation {
 
 enum class AluOperation {
     ADD,
@@ -22,4 +22,4 @@ struct AluEvent {
     MemoryValue res;
 };
 
-} // namespace bb::avm::simulation
+} // namespace bb::avm2::simulation

@@ -5,7 +5,7 @@
 
 #include "barretenberg/vm2/common/opcodes.hpp"
 
-namespace bb::avm {
+namespace bb::avm2 {
 
 struct InstructionSpec {
     struct GasInfo {
@@ -28,4 +28,4 @@ struct InstructionSpec {
 extern const std::unordered_map<ExecutionOpCode, InstructionSpec> INSTRUCTION_SPEC;
 extern const std::unordered_map<WireOpCode, ExecutionOpCode> OPCODE_MAP;
 
-} // namespace bb::avm
+} // namespace bb::avm2

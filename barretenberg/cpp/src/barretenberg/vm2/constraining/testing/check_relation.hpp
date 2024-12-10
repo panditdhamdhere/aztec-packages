@@ -6,7 +6,7 @@
 
 #include "barretenberg/common/log.hpp"
 
-namespace bb::avm::constraining {
+namespace bb::avm2::constraining {
 
 template <typename Relation, typename Trace> void check_relation(const Trace& trace, std::span<size_t> subrelations)
 {
@@ -42,4 +42,4 @@ template <typename Relation, typename Trace> void check_relation(const Trace& tr
     check_relation<Relation>(trace, subrelations);
 }
 
-} // namespace bb::avm::constraining
+} // namespace bb::avm2::constraining
