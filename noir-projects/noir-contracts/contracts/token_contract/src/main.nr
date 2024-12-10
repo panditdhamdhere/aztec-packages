@@ -383,11 +383,7 @@ contract Token {
         ));
         // docs:end:encrypted
         // docs:end:increase_private_balance
-        storage.balances.at(to).add(to, amount).emit(encode_and_encrypt_note(
-            &mut context,
-            to,
-            from,
-        ));
+        storage.balances.at(to).add(to, amount).emit(encode_and_encrypt_note(&mut context, to, from));
     }
     // docs:end:transfer_in_private
 

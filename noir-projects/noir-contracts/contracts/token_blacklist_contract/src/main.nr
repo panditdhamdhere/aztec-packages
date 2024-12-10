@@ -188,9 +188,11 @@ contract TokenBlacklist {
         assert(notes.len() == 1, "note not popped");
 
         // Add the token note to user's balances set
-        storage.balances.add(to, U128::from_integer(amount)).emit(
-            encode_and_encrypt_note(&mut context, to, context.msg_sender()),
-        );
+        storage.balances.add(to, U128::from_integer(amount)).emit(encode_and_encrypt_note(
+            &mut context,
+            to,
+            context.msg_sender(),
+        ));
     }
 
     #[private]
@@ -206,9 +208,11 @@ contract TokenBlacklist {
             assert(nonce == 0, "invalid nonce");
         }
 
-        storage.balances.sub(from, U128::from_integer(amount)).emit(
-            encode_and_encrypt_note(&mut context, from, from),
-        );
+        storage.balances.sub(from, U128::from_integer(amount)).emit(encode_and_encrypt_note(
+            &mut context,
+            from,
+            from,
+        ));
 
         TokenBlacklist::at(context.this_address())._increase_public_balance(to, amount).enqueue(
             &mut context,
@@ -253,9 +257,11 @@ contract TokenBlacklist {
             assert(nonce == 0, "invalid nonce");
         }
 
-        storage.balances.sub(from, U128::from_integer(amount)).emit(
-            encode_and_encrypt_note(&mut context, from, from),
-        );
+        storage.balances.sub(from, U128::from_integer(amount)).emit(encode_and_encrypt_note(
+            &mut context,
+            from,
+            from,
+        ));
 
         TokenBlacklist::at(context.this_address())._reduce_total_supply(amount).enqueue(&mut context);
     }
