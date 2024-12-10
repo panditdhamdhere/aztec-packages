@@ -1,5 +1,6 @@
 #include "barretenberg/vm2/avm_api.hpp"
 
+#include "barretenberg/vm/stats.hpp"
 #include "barretenberg/vm2/proving_helper.hpp"
 #include "barretenberg/vm2/simulation_helper.hpp"
 #include "barretenberg/vm2/tracegen_helper.hpp"
@@ -13,19 +14,20 @@ std::tuple<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const Avm
     // Simulate.
     info("Simulating...");
     AvmSimulationHelper simulation_helper(inputs);
-    auto events = simulation_helper.simulate();
+    auto events = AVM_TRACK_TIME_V("simulation/all", simulation_helper.simulate());
 
     // Generate trace.
     info("Generating trace...");
     AvmTraceGenHelper tracegen_helper;
-    auto trace = tracegen_helper.generate_trace(std::move(events));
+    auto trace = AVM_TRACK_TIME_V("tracegen/all", tracegen_helper.generate_trace(std::move(events)));
 
     // Prove.
     info("Proving...");
     AvmProvingHelper proving_helper;
-    auto proof = proving_helper.prove(std::move(trace));
+    auto proof = AVM_TRACK_TIME_V("proving/all", proving_helper.prove(std::move(trace)));
 
     // FIXME: No VK.
+    info("Done!");
     return { std::move(proof), {} };
 }
 

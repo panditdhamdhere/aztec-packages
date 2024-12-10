@@ -31,6 +31,26 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
 {
     AvmCustomProver::ProverPolynomials polys;
 
+    // Polynomials that will be shifted need special care.
+    AVM_TRACK_TIME("proving/init_polys_to_be_shifted", ({
+                       auto to_be_shifted = polys.get_to_be_shifted();
+
+                       // TODO: cannot parallelize because Polynomial construction uses parallelism.
+                       for (size_t i = 0; i < to_be_shifted.size(); i++) {
+                           auto& poly = to_be_shifted[i];
+                           // WARNING! Column-Polynomials order matters!
+                           Column col = static_cast<Column>(TO_BE_SHIFTED_COLUMNS_ARRAY.at(i));
+                           auto num_rows = trace.get_column_size(col);
+                           num_rows = num_rows >= 2 ? num_rows : 2; // We need at least 2 rows for the shift.
+
+                           poly = AvmCustomProver::Polynomial(
+                               /*memory size*/
+                               num_rows - 1,
+                               /*largest possible index*/ circuit_subgroup_size,
+                               /*make shiftable with offset*/ 1);
+                       }
+                   }));
+
     // catch-all with fully formed polynomials
     AVM_TRACK_TIME("proving/init_polys_unshifted", ({
                        auto unshifted = polys.get_unshifted();
@@ -38,12 +58,20 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
                        // FIXME: We don't support handling of derived polynomials.
                        // Derived polynomials will be empty.
                        bb::parallel_for(unshifted.size(), [&](size_t i) {
+                           auto& poly = unshifted[i];
+                           // FIXME: this is a bad way to check if the polynomial is already initialized.
+                           // It could be that it has been initialized, but it's all zeroes.
+                           if (!poly.is_empty()) {
+                               // Already initialized above.
+                               return;
+                           }
+
                            // WARNING! Column-Polynomials order matters!
                            Column col = static_cast<Column>(i);
                            const auto num_rows = trace.get_column_size(col);
 
-                           unshifted[i] = AvmCustomProver::Polynomial::create_non_parallel_zero_init(
-                               num_rows, circuit_subgroup_size);
+                           poly = AvmCustomProver::Polynomial::create_non_parallel_zero_init(num_rows,
+                                                                                             circuit_subgroup_size);
                        });
                    }));
 

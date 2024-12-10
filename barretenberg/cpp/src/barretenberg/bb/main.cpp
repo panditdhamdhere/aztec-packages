@@ -719,11 +719,18 @@ void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem:
     avm2::AvmAPI avm;
     auto inputs = avm2::AvmAPI::Inputs::from(read_file(inputs_path));
 
-    init_bn254_crs(1 << 21); // TODO: merge with proving helper.
+    init_bn254_crs(1 << 23); // TODO: merge with proving helper.
     auto [proof, vk] = avm.prove(inputs);
 
     write_file(output_path / "proof", to_buffer(proof));
     write_file(output_path / "vk", to_buffer(vk));
+
+#ifdef AVM_TRACK_STATS
+    info("------- STATS -------");
+    const auto& stats = avm_trace::Stats::get();
+    const int levels = std::getenv("AVM_STATS_DEPTH") != nullptr ? std::stoi(std::getenv("AVM_STATS_DEPTH")) : 2;
+    info(stats.to_string(levels));
+#endif
 }
 
 /**
