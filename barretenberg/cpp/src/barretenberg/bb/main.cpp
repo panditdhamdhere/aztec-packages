@@ -714,53 +714,16 @@ void avm_prove(const std::filesystem::path& public_inputs_path,
 #endif
 }
 
-// struct DummySerialization {
-//     std::vector<FF> ffs;
-//     fq fq;
-//     avm::AffinePoint affine;
-//     avm::AztecAddress addr;
-//     std::vector<avm::simulation::ContractInstanceHint> contract_instance_hints;
-
-//     std::string to_string() const
-//     {
-//         std::ostringstream oss;
-//         oss << "ffs: [";
-//         for (size_t i = 0; i < ffs.size(); i++) {
-//             oss << ffs[i];
-//             if (i != ffs.size() - 1) {
-//                 oss << ", ";
-//             }
-//         }
-//         oss << "]" << std::endl;
-//         oss << "fq: " << fq << std::endl;
-//         oss << "affine: " << affine << std::endl;
-//         oss << "addr: " << addr << std::endl;
-//         oss << "contract_instance_hints: " << contract_instance_hints << std::endl;
-//         return oss.str();
-//     }
-
-//     MSGPACK_FIELDS(ffs, fq, affine, addr, contract_instance_hints);
-// };
-
 void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem::path& output_path)
 {
-    using namespace avm2;
-    // vinfo("initializing crs with size: ", avm_trace::Execution::SRS_SIZE);
-    // init_bn254_crs(avm_trace::Execution::SRS_SIZE);
+    avm2::AvmAPI avm;
+    auto inputs = avm2::AvmAPI::Inputs::from(read_file(inputs_path));
 
-    // DummySerialization d;
-    // auto data = read_file(inputs_path);
-    // msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(d);
-    // info("dummy: ", d.to_string());
-    // return;
-
-    AvmAPI avm;
-    auto inputs = AvmAPI::Inputs::from(read_file(inputs_path));
-
+    init_bn254_crs(1 << 21); // TODO: merge with proving helper.
     auto [proof, vk] = avm.prove(inputs);
 
     write_file(output_path / "proof", to_buffer(proof));
-    // write_file(output_path / "vk", to_buffer(vk));
+    write_file(output_path / "vk", to_buffer(vk));
 }
 
 /**

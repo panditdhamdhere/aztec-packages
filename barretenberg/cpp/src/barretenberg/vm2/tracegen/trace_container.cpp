@@ -21,9 +21,29 @@ void TraceContainer::set(size_t row, std::span<const std::pair<Column, FF>> valu
 // TODO: we could cache this, but we'd have to watch out when we set a value to 0.
 size_t TraceContainer::get_column_size(Column col) const
 {
-    auto keys = std::views::keys(trace.at(col));
+    auto col_it = trace.find(col);
+    if (col_it == trace.end()) {
+        return 0;
+    }
+    auto keys = std::views::keys(col_it->second);
     const auto it = std::max_element(keys.begin(), keys.end());
     return it == keys.end() ? 0 : *it + 1;
+}
+
+void TraceContainer::visit_column(Column col, const std::function<void(size_t, const FF&)>& visitor) const
+{
+    auto col_it = trace.find(col);
+    if (col_it == trace.end()) {
+        return;
+    }
+    for (const auto& [row, value] : col_it->second) {
+        visitor(row, value);
+    }
+}
+
+void TraceContainer::clear_column(Column col)
+{
+    trace.erase(col);
 }
 
 } // namespace bb::avm2::tracegen

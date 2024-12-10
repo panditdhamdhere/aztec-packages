@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <ranges>
 #include <span>
 #include <unordered_map>
@@ -19,7 +20,13 @@ class TraceContainer {
     // Bulk setting for a given row.
     void set(size_t row, std::span<const std::pair<Column, FF>> values);
 
+    // Visits non-zero values in a column.
+    void visit_column(Column col, const std::function<void(size_t, const FF&)>& visitor) const;
+    // Returns the number of rows in a column. That is, the maximum non-zero row index + 1.
     size_t get_column_size(Column col) const;
+
+    // Free column memory.
+    void clear_column(Column col);
 
   protected:
     // We store the trace as a sparse matrix.

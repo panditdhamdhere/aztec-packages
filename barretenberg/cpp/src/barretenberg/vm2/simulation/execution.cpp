@@ -103,31 +103,33 @@ void Execution::execution_loop()
         auto& context = context_stack.current();
 
         // This try-catch is here to ignore any unhandled opcodes.
-        // try {
-        auto pc = context.get_pc();
-        Instruction instruction = context.get_bytecode_manager().read_instruction(pc);
-        context.set_next_pc(pc + instruction.size_in_bytes);
-        info("@", pc, " ", instruction.to_string());
+        try {
+            auto pc = context.get_pc();
+            Instruction instruction = context.get_bytecode_manager().read_instruction(pc);
+            context.set_next_pc(pc + instruction.size_in_bytes);
+            info("@", pc, " ", instruction.to_string());
 
-        ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
-        const InstructionSpec& spec = instruction_info_db.get(opcode); // Unused for now.
-        std::vector<Operand> resolved_operands = addressing.resolve(instruction, context.get_memory());
+            ExecutionOpCode opcode = instruction_info_db.map_wire_opcode_to_execution_opcode(instruction.opcode);
+            const InstructionSpec& spec = instruction_info_db.get(opcode); // Unused for now.
+            std::vector<Operand> resolved_operands = addressing.resolve(instruction, context.get_memory());
 
-        dispatch_opcode(opcode, resolved_operands);
+            dispatch_opcode(opcode, resolved_operands);
 
-        events.emit({ .pc = pc,
-                      .contract_class_id = context.get_bytecode_manager().get_class_id(),
-                      .wire_instruction = std::move(instruction),
-                      .instruction_spec = spec,
-                      .opcode = opcode,
-                      .resolved_operands = std::move(resolved_operands) });
+            events.emit({ .pc = pc,
+                          .contract_class_id = context.get_bytecode_manager().get_class_id(),
+                          .wire_instruction = std::move(instruction),
+                          .instruction_spec = spec,
+                          .opcode = opcode,
+                          .resolved_operands = std::move(resolved_operands) });
 
-        context.set_pc(context.get_next_pc());
-        /*} catch (const std::exception& e) {
-            info("Error: ", e.what());
             context.set_pc(context.get_next_pc());
-            continue;
-        }*/
+        } catch (const std::exception& e) {
+            info("Error: ", e.what());
+            // Bah, we are done.
+            return;
+            // context.set_pc(context.get_next_pc());
+            // continue;
+        }
     }
 }
 

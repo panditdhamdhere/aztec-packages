@@ -10,6 +10,7 @@
 namespace bb::avm2 {
 
 class AvmProver {
+  public:
     using Flavor = AvmFlavor;
     using FF = Flavor::FF;
     using PCS = Flavor::PCS;
@@ -21,7 +22,6 @@ class AvmProver {
     using CommitmentLabels = Flavor::CommitmentLabels;
     using Transcript = Flavor::Transcript;
 
-  public:
     explicit AvmProver(std::shared_ptr<ProvingKey> input_key, std::shared_ptr<PCSCommitmentKey> commitment_key);
     AvmProver(AvmProver&& prover) = default;
     virtual ~AvmProver() = default;
