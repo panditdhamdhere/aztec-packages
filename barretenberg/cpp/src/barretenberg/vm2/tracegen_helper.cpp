@@ -14,6 +14,7 @@ TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
 {
     TraceContainer trace;
 
+    // TODO: We can't parallelize this yet because the TraceContainer is not thread-safe.
     AluTraceBuilder alu_builder;
     alu_builder.process(events.alu, trace);
     events.alu.clear();

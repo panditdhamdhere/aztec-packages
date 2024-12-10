@@ -1,12 +1,4 @@
-import {
-  type AvmCircuitInputs,
-  AvmContractInstanceHint,
-  AztecAddress,
-  Fq,
-  Fr,
-  Point,
-  Vector,
-} from '@aztec/circuits.js';
+import { type AvmCircuitInputs, AztecAddress, Fq, Fr, Point, Vector } from '@aztec/circuits.js';
 import { sha256 } from '@aztec/foundation/crypto';
 import { type LogFn, type Logger } from '@aztec/foundation/log';
 import { Timer } from '@aztec/foundation/timer';
@@ -516,7 +508,7 @@ export async function generateAvmProofV2(
   pathToBB: string,
   workingDirectory: string,
   input: AvmCircuitInputs,
-  log: LogFn,
+  logger: Logger,
 ): Promise<BBFailure | BBSuccess> {
   // Check that the working directory exists
   try {
@@ -539,7 +531,8 @@ export async function generateAvmProofV2(
     return { status: BB_RESULT.FAILURE, reason: `Failed to find bb binary at ${pathToBB}` };
   }
 
-  // log(`original: ${inspect(input)}`);
+  // logger(`original: ${inspect(input)}`);
+  logger.verbose(`original: ${inspect(input.avmHints.enqueuedCalls.items)}`);
   // Convert the inputs to something that works with vm2 and messagepack.
   // const inputSubset = {
   //   ffs: [new Fr(0x123456789), new Fr(0x987654321)],
@@ -568,22 +561,22 @@ export async function generateAvmProofV2(
       packedBytecode: bytecodeHint.bytecode,
     });
   }
-  // This is not filled in yet.
-  // for (const enqueuedCall of input.avmHints.enqueuedCalls.items) {
-  //   inputs.enqueuedCalls.push({
-  //     contractAddress: enqueuedCall.contractAddress,
-  //     sender: new Fr(0), // FIXME
-  //     args: enqueuedCall.calldata,
-  //     isStatic: false, // FIXME
-  //   });
-  // }
-  inputs.enqueuedCalls.push({
-    contractAddress: input.publicInputs.callContext.contractAddress,
-    sender: input.publicInputs.callContext.msgSender,
-    args: input.calldata,
-    isStatic: input.publicInputs.callContext.isStaticCall,
-  });
-  log(`inputs: ${inspect(inputs)}`);
+  // TODO: for now I only convert app logic requests?
+  for (const enqueuedCall of input.avmHints.enqueuedCalls.items) {
+    inputs.enqueuedCalls.push({
+      contractAddress: enqueuedCall.contractAddress,
+      sender: new Fr(0), // FIXME
+      args: enqueuedCall.calldata.items,
+      isStatic: false, // FIXME
+    });
+  }
+  // inputs.enqueuedCalls.push({
+  //   contractAddress: input.publicInputs.callContext.contractAddress,
+  //   sender: input.publicInputs.callContext.msgSender,
+  //   args: input.calldata,
+  //   isStatic: input.publicInputs.callContext.isStaticCall,
+  // });
+  logger.verbose(`inputs: ${inspect(inputs)}`);
 
   // C++ Fr and Fq classes work well with the buffer serialization.
   addExtension({
@@ -633,11 +626,11 @@ export async function generateAvmProofV2(
       avmInputsPath,
       '-o',
       outputPath,
-      currentLogLevel == 'debug' ? '-d' : currentLogLevel == 'verbose' ? '-v' : '',
+      logger.level === 'debug' || logger.level === 'trace' ? '-d' : logger.level === 'verbose' ? '-v' : '',
     ];
     const timer = new Timer();
     const logFunction = (message: string) => {
-      log(`AvmCircuit (prove) BB out - ${message}`);
+      logger.verbose(`AvmCircuit (prove) BB out - ${message}`);
     };
     const result = await executeBB(pathToBB, 'avm2_prove', args, logFunction);
     const duration = timer.ms();
