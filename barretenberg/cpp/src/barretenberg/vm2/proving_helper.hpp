@@ -16,6 +16,7 @@ class AvmProvingHelper {
     using VkData = std::vector<uint8_t>;
 
     std::pair<Proof, VkData> prove(tracegen::TraceContainer&& trace);
+    bool check_circuit(tracegen::TraceContainer&& trace);
     bool verify(const Proof& proof, const PublicInputs& pi, const VkData& vk_data);
 };
 

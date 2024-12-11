@@ -13,7 +13,7 @@ namespace bb::avm2::constraining {
 namespace {
 
 using tracegen::TestTraceContainer;
-using FF = Avm2FlavorSettings::FF;
+using FF = AvmFlavorSettings::FF;
 using C = Column;
 using execution = bb::avm2::execution<FF>;
 

@@ -18,6 +18,7 @@ class AvmAPI {
 
     // NOTE: The public inputs are NOT part of the proof.
     std::pair<AvmProof, AvmVerificationKey> prove(const ProvingInputs& inputs);
+    bool check_circuit(const ProvingInputs& inputs);
     bool verify(const AvmProof& proof, const PublicInputs& pi, const AvmVerificationKey& vk_data);
 };
 

@@ -6,6 +6,7 @@
 #include "barretenberg/common/thread.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/vm/stats.hpp"
+#include "barretenberg/vm2/constraining/check_circuit.hpp"
 #include "barretenberg/vm2/generated/prover.hpp"
 #include "barretenberg/vm2/generated/verifier.hpp"
 
@@ -121,6 +122,20 @@ std::pair<AvmProvingHelper::Proof, AvmProvingHelper::VkData> AvmProvingHelper::p
     auto serialized_vk = to_buffer(verification_key->to_field_elements());
 
     return { std::move(proof), std::move(serialized_vk) };
+}
+
+bool AvmProvingHelper::check_circuit(tracegen::TraceContainer&& trace)
+{
+    const size_t num_rows = trace.get_num_rows();
+    auto polynomials = AVM_TRACK_TIME_V("proving/prove:compute_polynomials", compute_polynomials(trace));
+    try {
+        AVM_TRACK_TIME("proving/check_circuit", constraining::run_check_circuit(polynomials, num_rows));
+    } catch (const std::exception& e) {
+        info("Circuit check failed: ", e.what());
+        return false;
+    }
+
+    return true;
 }
 
 bool AvmProvingHelper::verify(const AvmProvingHelper::Proof& proof, const PublicInputs& pi, const VkData& vk_data)

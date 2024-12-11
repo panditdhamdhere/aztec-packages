@@ -30,6 +30,16 @@ size_t TraceContainer::get_column_size(Column col) const
     return it == keys.end() ? 0 : *it + 1;
 }
 
+size_t TraceContainer::get_num_rows() const
+{
+    size_t max_rows = 0;
+    auto active_columns = std::views::keys(trace);
+    for (const auto& col : active_columns) {
+        max_rows = std::max(max_rows, get_column_size(col));
+    }
+    return max_rows;
+}
+
 void TraceContainer::visit_column(Column col, const std::function<void(size_t, const FF&)>& visitor) const
 {
     auto col_it = trace.find(col);

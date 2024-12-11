@@ -31,6 +31,24 @@ std::pair<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const AvmA
     return { std::move(proof), std::move(vk) };
 }
 
+bool AvmAPI::check_circuit(const AvmAPI::ProvingInputs& inputs)
+{
+    // Simulate.
+    info("Simulating...");
+    AvmSimulationHelper simulation_helper(inputs);
+    auto events = AVM_TRACK_TIME_V("simulation/all", simulation_helper.simulate());
+
+    // Generate trace.
+    info("Generating trace...");
+    AvmTraceGenHelper tracegen_helper;
+    auto trace = AVM_TRACK_TIME_V("tracegen/all", tracegen_helper.generate_trace(std::move(events)));
+
+    // Check circuit.
+    info("Checking circuit...");
+    AvmProvingHelper proving_helper;
+    return proving_helper.check_circuit(std::move(trace));
+}
+
 bool AvmAPI::verify(const AvmProof& proof, const PublicInputs& pi, const AvmVerificationKey& vk_data)
 {
     info("Verifying...");

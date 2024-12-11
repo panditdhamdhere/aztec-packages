@@ -734,6 +734,17 @@ void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem:
     print_avm_stats();
 }
 
+void avm2_check_circuit(const std::filesystem::path& inputs_path)
+{
+    avm2::AvmAPI avm;
+    auto inputs = avm2::AvmAPI::ProvingInputs::from(read_file(inputs_path));
+
+    bool res = avm.check_circuit(inputs);
+    info("circuit check: ", res ? "success" : "failure");
+
+    print_avm_stats();
+}
+
 /**
  * @brief Verifies an avm proof and writes the result to stdout
  *
@@ -1357,6 +1368,9 @@ int main(int argc, char* argv[])
             // This outputs both files: proof and vk, under the given directory.
             std::filesystem::path output_path = get_option(args, "-o", "./proofs");
             avm2_prove(inputs_path, output_path);
+        } else if (command == "avm2_check_circuit") {
+            std::filesystem::path inputs_path = get_option(args, "--avm-inputs", "./target/avm_inputs.bin");
+            avm2_check_circuit(inputs_path);
         } else if (command == "avm2_verify") {
             std::filesystem::path public_inputs_path =
                 get_option(args, "--avm-public-inputs", "./target/avm_public_inputs.bin");
