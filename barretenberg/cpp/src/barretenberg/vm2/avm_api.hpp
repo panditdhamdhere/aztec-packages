@@ -11,11 +11,14 @@ class AvmAPI {
   public:
     using AvmProof = AvmProvingHelper::Proof;
     using AvmVerificationKey = std::vector<uint8_t>;
-    using Inputs = simulation::AvmInputs;
+    using ProvingInputs = simulation::AvmProvingInputs;
+    using PublicInputs = simulation::PublicInputs;
 
     AvmAPI() = default;
 
-    std::tuple<AvmProof, AvmVerificationKey> prove(const Inputs& inputs);
+    // NOTE: The public inputs are NOT part of the proof.
+    std::pair<AvmProof, AvmVerificationKey> prove(const ProvingInputs& inputs);
+    bool verify(const AvmProof& proof, const PublicInputs& pi, const AvmVerificationKey& vk_data);
 };
 
 } // namespace bb::avm2

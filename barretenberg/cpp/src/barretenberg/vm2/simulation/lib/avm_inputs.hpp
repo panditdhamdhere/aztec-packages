@@ -59,11 +59,22 @@ struct PublicExecutionRequest {
     MSGPACK_FIELDS(contractAddress, sender, args, isStatic);
 };
 
-struct AvmInputs {
+struct PublicInputs {
+    // Nothing yet.
+    std::vector<FF> dummy;
+
+    static PublicInputs from(const std::vector<uint8_t>& data);
+    std::vector<std::vector<FF>> to_columns() const { return { dummy }; }
+
+    MSGPACK_FIELDS(dummy);
+};
+
+struct AvmProvingInputs {
     std::vector<PublicExecutionRequest> enqueuedCalls;
     ExecutionHints hints;
+    PublicInputs publicInputs;
 
-    static AvmInputs from(const std::vector<uint8_t>& data);
+    static AvmProvingInputs from(const std::vector<uint8_t>& data);
 
     MSGPACK_FIELDS(enqueuedCalls, hints);
 };

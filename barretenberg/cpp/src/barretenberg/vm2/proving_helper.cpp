@@ -1,11 +1,13 @@
 #include "barretenberg/vm2/proving_helper.hpp"
 
-#include "barretenberg/common/thread.hpp"
-#include "barretenberg/vm/stats.hpp"
-#include "barretenberg/vm2/constraining/prover.hpp"
 #include <memory>
 
-using bb::avm2::constraining::AvmCustomProver;
+#include "barretenberg/common/serialize.hpp"
+#include "barretenberg/common/thread.hpp"
+#include "barretenberg/numeric/bitop/get_msb.hpp"
+#include "barretenberg/vm/stats.hpp"
+#include "barretenberg/vm2/generated/prover.hpp"
+#include "barretenberg/vm2/generated/verifier.hpp"
 
 namespace bb::avm2 {
 namespace {
@@ -13,23 +15,23 @@ namespace {
 constexpr size_t circuit_subgroup_size = 1 << 21; // TODO: factor out.
 
 // TODO: This doesn't need to be a shared_ptr, but BB requires it.
-std::shared_ptr<AvmCustomProver::ProvingKey> create_proving_key(AvmCustomProver::ProverPolynomials& polynomials)
+std::shared_ptr<AvmProver::ProvingKey> create_proving_key(AvmProver::ProverPolynomials& polynomials)
 {
-    auto proving_key = std::make_shared<AvmCustomProver::ProvingKey>(circuit_subgroup_size, 0);
+    auto proving_key = std::make_shared<AvmProver::ProvingKey>(circuit_subgroup_size, 0);
 
     for (auto [key_poly, prover_poly] : zip_view(proving_key->get_all(), polynomials.get_unshifted())) {
         ASSERT(flavor_get_label(*proving_key, key_poly) == flavor_get_label(polynomials, prover_poly));
         key_poly = std::move(prover_poly);
     }
 
-    proving_key->commitment_key = std::make_shared<AvmCustomProver::PCSCommitmentKey>(circuit_subgroup_size);
+    proving_key->commitment_key = std::make_shared<AvmProver::PCSCommitmentKey>(circuit_subgroup_size);
 
     return proving_key;
 }
 
-AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace)
+AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace)
 {
-    AvmCustomProver::ProverPolynomials polys;
+    AvmProver::ProverPolynomials polys;
 
     // Polynomials that will be shifted need special care.
     AVM_TRACK_TIME("proving/init_polys_to_be_shifted", ({
@@ -43,7 +45,7 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
                            auto num_rows = trace.get_column_size(col);
                            num_rows = num_rows >= 2 ? num_rows : 2; // We need at least 2 rows for the shift.
 
-                           poly = AvmCustomProver::Polynomial(
+                           poly = AvmProver::Polynomial(
                                /*memory size*/
                                num_rows - 1,
                                /*largest possible index*/ circuit_subgroup_size,
@@ -70,8 +72,7 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
                            Column col = static_cast<Column>(i);
                            const auto num_rows = trace.get_column_size(col);
 
-                           poly = AvmCustomProver::Polynomial::create_non_parallel_zero_init(num_rows,
-                                                                                             circuit_subgroup_size);
+                           poly = AvmProver::Polynomial::create_non_parallel_zero_init(num_rows, circuit_subgroup_size);
                        });
                    }));
 
@@ -86,7 +87,7 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
                            auto& poly = unshifted[i];
                            Column col = static_cast<Column>(i);
 
-                           trace.visit_column(col, [&](size_t row, const AvmCustomProver::FF& value) {
+                           trace.visit_column(col, [&](size_t row, const AvmProver::FF& value) {
                                // We use `at` because we are sure the row exists and the value is non-zero.
                                poly.at(row) = value;
                            });
@@ -107,14 +108,51 @@ AvmCustomProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer&
 
 } // namespace
 
-AvmProvingHelper::Proof AvmProvingHelper::prove(tracegen::TraceContainer&& trace)
+std::pair<AvmProvingHelper::Proof, AvmProvingHelper::VkData> AvmProvingHelper::prove(tracegen::TraceContainer&& trace)
 {
-    auto polynomials = AVM_TRACK_TIME_V("proving/create_prover:compute_polynomials", compute_polynomials(trace));
-    const auto proving_key = AVM_TRACK_TIME_V("proving/create_prover:proving_key", create_proving_key(polynomials));
-    auto prover = AVM_TRACK_TIME_V("proving/create_prover:construct_prover",
-                                   AvmCustomProver(proving_key, proving_key->commitment_key));
+    auto polynomials = AVM_TRACK_TIME_V("proving/prove:compute_polynomials", compute_polynomials(trace));
+    auto proving_key = AVM_TRACK_TIME_V("proving/prove:proving_key", create_proving_key(polynomials));
+    auto prover =
+        AVM_TRACK_TIME_V("proving/prove:construct_prover", AvmProver(proving_key, proving_key->commitment_key));
+    auto verification_key = AVM_TRACK_TIME_V("proving/prove:verification_key",
+                                             std::make_shared<AvmVerifier::VerificationKey>(std::move(proving_key)));
 
-    return AVM_TRACK_TIME_V("proving/construct_proof", prover.construct_proof());
+    auto proof = AVM_TRACK_TIME_V("proving/construct_proof", prover.construct_proof());
+    auto serialized_vk = to_buffer(verification_key->to_field_elements());
+
+    return { std::move(proof), std::move(serialized_vk) };
+}
+
+bool AvmProvingHelper::verify(const AvmProvingHelper::Proof& proof, const PublicInputs& pi, const VkData& vk_data)
+{
+    using VerificationKey = AvmVerifier::VerificationKey;
+    std::vector<fr> vk_as_fields = many_from_buffer<AvmFlavorSettings::FF>(vk_data);
+
+    auto circuit_size = uint64_t(vk_as_fields[0]);
+    auto num_public_inputs = uint64_t(vk_as_fields[1]);
+    std::span vk_span(vk_as_fields);
+
+    vinfo("vk fields size: ", vk_as_fields.size());
+    vinfo("circuit size: ",
+          circuit_size,
+          " (next or eq power: 2^",
+          numeric::get_msb(numeric::round_up_power_2(circuit_size)),
+          ")");
+    vinfo("num of pub inputs: ", num_public_inputs);
+
+    std::array<VerificationKey::Commitment, VerificationKey::NUM_PRECOMPUTED_COMMITMENTS> precomputed_cmts;
+    for (size_t i = 0; i < VerificationKey::NUM_PRECOMPUTED_COMMITMENTS; i++) {
+        // Start at offset 2 and adds 4 (NUM_FRS_COM) fr elements per commitment. Therefore, index = 4 * i + 2.
+        precomputed_cmts[i] = field_conversion::convert_from_bn254_frs<VerificationKey::Commitment>(
+            vk_span.subspan(AvmFlavor::NUM_FRS_COM * i + 2, AvmFlavor::NUM_FRS_COM));
+    }
+
+    auto vk = AVM_TRACK_TIME_V(
+        "proving/verify:verification_key",
+        std::make_shared<VerificationKey>(circuit_size, num_public_inputs, std::move(precomputed_cmts)));
+
+    auto verifier = AVM_TRACK_TIME_V("proving/verify:construct_verifier", AvmVerifier(std::move(vk)));
+    return AVM_TRACK_TIME_V("proving/verify_proof", verifier.verify_proof(proof, pi.to_columns()));
 }
 
 } // namespace bb::avm2

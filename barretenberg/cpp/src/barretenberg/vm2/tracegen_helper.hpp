@@ -10,6 +10,7 @@ class AvmTraceGenHelper {
     AvmTraceGenHelper() = default;
 
     tracegen::TraceContainer generate_trace(simulation::EventsContainer&& events);
+    tracegen::TraceContainer generate_precomputed_columns();
 };
 
 } // namespace bb::avm2

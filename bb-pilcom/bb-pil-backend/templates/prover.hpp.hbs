@@ -21,6 +21,7 @@ class AvmProver {
     using ProverPolynomials = Flavor::ProverPolynomials;
     using CommitmentLabels = Flavor::CommitmentLabels;
     using Transcript = Flavor::Transcript;
+    using Proof = HonkProof;
 
     explicit AvmProver(std::shared_ptr<ProvingKey> input_key, std::shared_ptr<PCSCommitmentKey> commitment_key);
     AvmProver(AvmProver&& prover) = default;

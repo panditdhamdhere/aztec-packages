@@ -9,7 +9,7 @@ namespace bb::avm2 {
 
 using namespace bb::avm2::simulation;
 
-std::tuple<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const AvmAPI::Inputs& inputs)
+std::pair<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const AvmAPI::ProvingInputs& inputs)
 {
     // Simulate.
     info("Simulating...");
@@ -24,11 +24,18 @@ std::tuple<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const Avm
     // Prove.
     info("Proving...");
     AvmProvingHelper proving_helper;
-    auto proof = AVM_TRACK_TIME_V("proving/all", proving_helper.prove(std::move(trace)));
+    auto [proof, vk] = AVM_TRACK_TIME_V("proving/all", proving_helper.prove(std::move(trace)));
 
     // FIXME: No VK.
     info("Done!");
-    return { std::move(proof), {} };
+    return { std::move(proof), std::move(vk) };
+}
+
+bool AvmAPI::verify(const AvmProof& proof, const PublicInputs& pi, const AvmVerificationKey& vk_data)
+{
+    info("Verifying...");
+    AvmProvingHelper proving_helper;
+    return AVM_TRACK_TIME_V("verifing/all", proving_helper.verify(proof, pi, vk_data));
 }
 
 } // namespace bb::avm2

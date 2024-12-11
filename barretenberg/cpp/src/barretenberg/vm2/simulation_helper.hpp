@@ -9,7 +9,7 @@ namespace bb::avm2 {
 
 class AvmSimulationHelper {
   public:
-    AvmSimulationHelper(simulation::AvmInputs inputs)
+    AvmSimulationHelper(simulation::AvmProvingInputs inputs)
         : inputs(std::move(inputs))
     {}
 
@@ -22,7 +22,7 @@ class AvmSimulationHelper {
   private:
     template <typename S> simulation::EventsContainer simulate_with_settings();
 
-    simulation::AvmInputs inputs;
+    simulation::AvmProvingInputs inputs;
 };
 
 } // namespace bb::avm2

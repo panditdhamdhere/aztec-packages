@@ -651,6 +651,16 @@ void vk_as_fields(const std::string& vk_path, const std::string& output_path)
 }
 
 #ifndef DISABLE_AZTEC_VM
+void print_avm_stats()
+{
+#ifdef AVM_TRACK_STATS
+    info("------- STATS -------");
+    const auto& stats = avm_trace::Stats::get();
+    const int levels = std::getenv("AVM_STATS_DEPTH") != nullptr ? std::stoi(std::getenv("AVM_STATS_DEPTH")) : 2;
+    info(stats.to_string(levels));
+#endif
+}
+
 /**
  * @brief Writes an avm proof and corresponding (incomplete) verification key to files.
  *
@@ -706,31 +716,22 @@ void avm_prove(const std::filesystem::path& public_inputs_path,
     write_file(vk_fields_path, { vk_json.begin(), vk_json.end() });
     vinfo("vk as fields written to: ", vk_fields_path);
 
-#ifdef AVM_TRACK_STATS
-    info("------- STATS -------");
-    const auto& stats = avm_trace::Stats::get();
-    const int levels = std::getenv("AVM_STATS_DEPTH") != nullptr ? std::stoi(std::getenv("AVM_STATS_DEPTH")) : 2;
-    info(stats.to_string(levels));
-#endif
+    print_avm_stats();
 }
 
 void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem::path& output_path)
 {
     avm2::AvmAPI avm;
-    auto inputs = avm2::AvmAPI::Inputs::from(read_file(inputs_path));
+    auto inputs = avm2::AvmAPI::ProvingInputs::from(read_file(inputs_path));
 
-    init_bn254_crs(1 << 23); // TODO: merge with proving helper.
+    init_bn254_crs(1 << 23); // This is bigger than 1 << 21 because of BB inefficiencies.
     auto [proof, vk] = avm.prove(inputs);
 
+    // NOTE: As opposed to Avm1 and other proof systems, the public inputs are NOT part of the proof.
     write_file(output_path / "proof", to_buffer(proof));
     write_file(output_path / "vk", to_buffer(vk));
 
-#ifdef AVM_TRACK_STATS
-    info("------- STATS -------");
-    const auto& stats = avm_trace::Stats::get();
-    const int levels = std::getenv("AVM_STATS_DEPTH") != nullptr ? std::stoi(std::getenv("AVM_STATS_DEPTH")) : 2;
-    info(stats.to_string(levels));
-#endif
+    print_avm_stats();
 }
 
 /**
@@ -782,7 +783,27 @@ bool avm_verify(const std::filesystem::path& proof_path, const std::filesystem::
 
     const bool verified = AVM_TRACK_TIME_V("verify/all", avm_trace::Execution::verify(vk, proof));
     vinfo("verified: ", verified);
+
+    print_avm_stats();
     return verified;
+}
+
+// NOTE: The proof should NOT include the public inputs.
+bool avm2_verify(const std::filesystem::path& proof_path,
+                 const std::filesystem::path& public_inputs_path,
+                 const std::filesystem::path& vk_path)
+{
+    const auto proof = many_from_buffer<fr>(read_file(proof_path));
+    std::vector<uint8_t> vk_bytes = read_file(vk_path);
+    auto public_inputs = avm2::simulation::PublicInputs::from(read_file(public_inputs_path));
+
+    init_bn254_crs(1);
+    avm2::AvmAPI avm;
+    bool res = avm.verify(proof, public_inputs, vk_bytes);
+    info("verification: ", res ? "success" : "failure");
+
+    print_avm_stats();
+    return res;
 }
 #endif
 
@@ -1336,6 +1357,10 @@ int main(int argc, char* argv[])
             // This outputs both files: proof and vk, under the given directory.
             std::filesystem::path output_path = get_option(args, "-o", "./proofs");
             avm2_prove(inputs_path, output_path);
+        } else if (command == "avm2_verify") {
+            std::filesystem::path public_inputs_path =
+                get_option(args, "--avm-public-inputs", "./target/avm_public_inputs.bin");
+            return avm2_verify(proof_path, public_inputs_path, vk_path) ? 0 : 1;
         } else if (command == "avm_prove") {
             std::filesystem::path avm_public_inputs_path =
                 get_option(args, "--avm-public-inputs", "./target/avm_public_inputs.bin");

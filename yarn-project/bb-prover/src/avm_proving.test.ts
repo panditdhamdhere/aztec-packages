@@ -14,7 +14,14 @@ import fs from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
 
-import { type BBSuccess, BB_RESULT, generateAvmProof, generateAvmProofV2, verifyAvmProof } from './bb/execute.js';
+import {
+  type BBSuccess,
+  BB_RESULT,
+  generateAvmProof,
+  generateAvmProofV2,
+  verifyAvmProof,
+  verifyAvmProofV2,
+} from './bb/execute.js';
 import { extractAvmVkData } from './verification_key/verification_key_data.js';
 
 const TIMEOUT = 180_000;
@@ -180,9 +187,9 @@ describe('AVM WitGen, proof generation and verification', () => {
   it('Should prove and verify bulk_testing v2', async () => {
     const functionName = 'bulk_testing';
     const calldata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(x => new Fr(x));
-    const avmCircuitInputs = await simulateAvmTestContractGenerateCircuitInputs(functionName, calldata);
+    const avmCircuitInputs = await simulateAvmTestContractGenerateCircuitInputs(functionName, calldata, false);
 
-    const internalLogger = createDebugLogger('aztec:avm-proving-test');
+    const internalLogger = createLogger('bb-prover:avm-proving-test');
     const logger = (msg: string, _data?: any) => internalLogger.verbose(msg);
 
     // The paths for the barretenberg binary and the write path are hardcoded for now.
@@ -190,10 +197,28 @@ describe('AVM WitGen, proof generation and verification', () => {
     const bbWorkingDirectory = await fs.mkdtemp(path.join(tmpdir(), 'bb-'));
 
     // Then we prove.
-    const proofRes = await generateAvmProofV2(bbPath, bbWorkingDirectory, avmCircuitInputs, logger);
+    const proofRes = await generateAvmProofV2(bbPath, bbWorkingDirectory, avmCircuitInputs, internalLogger);
     if (proofRes.status === BB_RESULT.FAILURE) {
       internalLogger.error(`Proof generation failed: ${proofRes.reason}`);
     }
     expect(proofRes.status).toEqual(BB_RESULT.SUCCESS);
+    const succeededRes = proofRes as BBSuccess;
+
+    // Then we verify.
+    // Placeholder for now.
+    const publicInputs = {
+      dummy: [] as any[],
+    };
+
+    const rawVkPath = path.join(succeededRes.vkPath!, 'vk');
+    const verificationRes = await verifyAvmProofV2(
+      bbPath,
+      bbWorkingDirectory,
+      succeededRes.proofPath!,
+      publicInputs,
+      rawVkPath,
+      logger,
+    );
+    expect(verificationRes.status).toBe(BB_RESULT.SUCCESS);
   }, 180_000);
 });

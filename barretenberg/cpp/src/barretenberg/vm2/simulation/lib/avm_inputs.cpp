@@ -6,9 +6,16 @@
 
 namespace bb::avm2::simulation {
 
-AvmInputs AvmInputs::from(const std::vector<uint8_t>& data)
+PublicInputs PublicInputs::from(const std::vector<uint8_t>& data)
 {
-    AvmInputs inputs;
+    PublicInputs inputs;
+    msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(inputs);
+    return inputs;
+}
+
+AvmProvingInputs AvmProvingInputs::from(const std::vector<uint8_t>& data)
+{
+    AvmProvingInputs inputs;
     msgpack::unpack(reinterpret_cast<const char*>(data.data()), data.size()).get().convert(inputs);
     return inputs;
 }
