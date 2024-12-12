@@ -5,14 +5,6 @@
 
 namespace bb::avm2 {
 
-/**
- * All AVM opcodes (Keep in sync with TS counterpart code opcodes.ts)
- * TODO: Once opcode values are definitive, we should assign them explicitly in the enum below
- *       and typescript code. This would increase robustness against unintended modifications.
- *       i.e.: ADD = 0, SUB = 1, etc, ....
- * CAUTION: Any change in the list below needs to be carefully followed by
- *          a potential adaptation of Bytecode::is_valid method.
- */
 enum class WireOpCode {
     // Compute
     ADD_8,

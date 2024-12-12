@@ -8,7 +8,7 @@
 #include "barretenberg/vm2/common/aztec_types.hpp"
 #include "barretenberg/vm2/common/field.hpp"
 
-namespace bb::avm2::simulation {
+namespace bb::avm2 {
 
 struct PublicKeysHint {
     AffinePoint masterNullifierPublicKey;
@@ -25,19 +25,19 @@ struct PublicKeysHint {
 struct ContractInstanceHint {
     AztecAddress address;
     bool exists;
-    simulation::FF salt;
+    FF salt;
     AztecAddress deployer;
     ContractClassId contractClassId;
-    simulation::FF initializationHash;
+    FF initializationHash;
     PublicKeysHint publicKeys;
 
     MSGPACK_FIELDS(address, exists, salt, deployer, contractClassId, initializationHash, publicKeys);
 };
 
 struct ContractClassHint {
-    simulation::FF artifactHash;
-    simulation::FF privateFunctionsRoot;
-    simulation::FF publicBytecodeCommitment;
+    FF artifactHash;
+    FF privateFunctionsRoot;
+    FF publicBytecodeCommitment;
     std::vector<uint8_t> packedBytecode;
 
     MSGPACK_FIELDS(artifactHash, privateFunctionsRoot, publicBytecodeCommitment, packedBytecode);
@@ -79,4 +79,4 @@ struct AvmProvingInputs {
     MSGPACK_FIELDS(enqueuedCalls, hints);
 };
 
-} // namespace bb::avm2::simulation
+} // namespace bb::avm2

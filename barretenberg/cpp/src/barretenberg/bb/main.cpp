@@ -14,21 +14,15 @@
 #include "barretenberg/dsl/acir_format/proof_surgeon.hpp"
 #include "barretenberg/dsl/acir_proofs/acir_composer.hpp"
 #include "barretenberg/dsl/acir_proofs/honk_contract.hpp"
-#include "barretenberg/ecc/curves/bn254/fq.hpp"
 #include "barretenberg/honk/proof_system/types/proof.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/plonk/proof_system/proving_key/serialize.hpp"
 #include "barretenberg/plonk_honk_shared/types/aggregation_object_type.hpp"
 #include "barretenberg/serialize/cbind.hpp"
-#include "barretenberg/serialize/msgpack.hpp"
 #include "barretenberg/srs/global_crs.hpp"
 #include "barretenberg/stdlib/client_ivc_verifier/client_ivc_recursive_verifier.hpp"
 #include "barretenberg/stdlib_circuit_builders/ultra_flavor.hpp"
 #include "barretenberg/stdlib_circuit_builders/ultra_keccak_flavor.hpp"
-#include "barretenberg/vm/avm/trace/public_inputs.hpp"
-#include "barretenberg/vm2/common/aztec_types.hpp"
-#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
-#include <sstream>
 
 #ifndef DISABLE_AZTEC_VM
 #include "barretenberg/vm/avm/generated/flavor.hpp"
@@ -806,7 +800,7 @@ bool avm2_verify(const std::filesystem::path& proof_path,
 {
     const auto proof = many_from_buffer<fr>(read_file(proof_path));
     std::vector<uint8_t> vk_bytes = read_file(vk_path);
-    auto public_inputs = avm2::simulation::PublicInputs::from(read_file(public_inputs_path));
+    auto public_inputs = avm2::AvmAPI::PublicInputs::from(read_file(public_inputs_path));
 
     init_bn254_crs(1);
     avm2::AvmAPI avm;

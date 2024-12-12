@@ -17,7 +17,7 @@ enum class MemoryTag {
 };
 
 using MemoryAddress = std::size_t;
-using MemoryValue = simulation::FF;
+using MemoryValue = FF;
 constexpr auto MemoryAddressTag = MemoryTag::U32;
 
 } // namespace bb::avm2

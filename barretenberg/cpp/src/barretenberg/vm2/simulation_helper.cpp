@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "barretenberg/common/log.hpp"
+#include "barretenberg/vm2/common/avm_inputs.hpp"
 #include "barretenberg/vm2/common/aztec_types.hpp"
 #include "barretenberg/vm2/common/field.hpp"
 #include "barretenberg/vm2/simulation/addressing.hpp"
@@ -12,7 +13,6 @@
 #include "barretenberg/vm2/simulation/context.hpp"
 #include "barretenberg/vm2/simulation/context_stack.hpp"
 #include "barretenberg/vm2/simulation/execution.hpp"
-#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 #include "barretenberg/vm2/simulation/lib/instruction_info.hpp"
 #include "barretenberg/vm2/simulation/lib/raw_data_db.hpp"
 #include "barretenberg/vm2/simulation/tx_execution.hpp"

@@ -7,8 +7,8 @@
 
 namespace bb::avm2 {
 
-using AztecAddress = simulation::FF;
-using ContractClassId = simulation::FF;
+using AztecAddress = FF;
+using ContractClassId = FF;
 using AffinePoint = grumpkin::g1::affine_element;
 
 struct PublicKeys {
@@ -20,17 +20,17 @@ struct PublicKeys {
 
 struct ContractInstance {
     AztecAddress address;
-    simulation::FF salt;
+    FF salt;
     AztecAddress deployer_addr;
     ContractClassId contract_class_id;
-    simulation::FF initialisation_hash;
+    FF initialisation_hash;
     PublicKeys public_keys;
 };
 
 struct ContractClass {
-    simulation::FF artifact_hash;
-    simulation::FF private_function_root;
-    simulation::FF public_bytecode_commitment;
+    FF artifact_hash;
+    FF private_function_root;
+    FF public_bytecode_commitment;
     std::vector<uint8_t> packed_bytecode;
 };
 

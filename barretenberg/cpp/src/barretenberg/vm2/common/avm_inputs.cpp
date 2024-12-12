@@ -1,10 +1,10 @@
-#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
+#include "barretenberg/vm2/common/avm_inputs.hpp"
 
 #include <vector>
 
 #include "barretenberg/serialize/msgpack.hpp"
 
-namespace bb::avm2::simulation {
+namespace bb::avm2 {
 
 PublicInputs PublicInputs::from(const std::vector<uint8_t>& data)
 {
@@ -20,4 +20,4 @@ AvmProvingInputs AvmProvingInputs::from(const std::vector<uint8_t>& data)
     return inputs;
 }
 
-} // namespace bb::avm2::simulation
+} // namespace bb::avm2

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "barretenberg/vm2/common/avm_inputs.hpp"
 #include "barretenberg/vm2/common/aztec_types.hpp"
-#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
 namespace bb::avm2::simulation {
 

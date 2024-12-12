@@ -2,14 +2,14 @@
 
 #include <list>
 
+#include "barretenberg/vm2/common/avm_inputs.hpp"
 #include "barretenberg/vm2/simulation/events/events_container.hpp"
-#include "barretenberg/vm2/simulation/lib/avm_inputs.hpp"
 
 namespace bb::avm2 {
 
 class AvmSimulationHelper {
   public:
-    AvmSimulationHelper(simulation::AvmProvingInputs inputs)
+    AvmSimulationHelper(AvmProvingInputs inputs)
         : inputs(std::move(inputs))
     {}
 
@@ -22,7 +22,7 @@ class AvmSimulationHelper {
   private:
     template <typename S> simulation::EventsContainer simulate_with_settings();
 
-    simulation::AvmProvingInputs inputs;
+    AvmProvingInputs inputs;
 };
 
 } // namespace bb::avm2
