@@ -10,7 +10,7 @@ template <typename FF_> class executionImpl {
   public:
     using FF = FF_;
 
-    static constexpr std::array<size_t, 1> SUBRELATION_PARTIAL_LENGTHS = { 3 };
+    static constexpr std::array<size_t, 1> SUBRELATION_PARTIAL_LENGTHS = { 4 };
 
     template <typename ContainerOverSubrelations, typename AllEntities>
     void static accumulate(ContainerOverSubrelations& evals,
@@ -21,8 +21,8 @@ template <typename FF_> class executionImpl {
 
         {
             using Accumulator = typename std::tuple_element_t<0, ContainerOverSubrelations>;
-            auto tmp =
-                ((FF(1) - new_term.execution_last) * ((new_term.execution_pc_shift - new_term.execution_pc) - FF(1)));
+            auto tmp = ((new_term.execution_sel * (FF(1) - new_term.execution_last)) *
+                        ((new_term.execution_pc_shift - new_term.execution_pc) - FF(1)));
             tmp *= scaling_factor;
             std::get<0>(evals) += typename Accumulator::View(tmp);
         }

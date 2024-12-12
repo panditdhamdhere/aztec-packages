@@ -19,26 +19,18 @@ template <typename FF> std::string field_to_string(const FF& ff)
 
 template <typename FF> std::vector<std::string> AvmFullRow<FF>::names()
 {
-    return { "execution_zero",   "execution_input",
-             "alu_dst_addr",     "alu_ia",
-             "alu_ia_addr",      "alu_ib",
-             "alu_ib_addr",      "alu_ic",
-             "alu_op",           "alu_sel_op_add",
-             "execution_clk",    "execution_last",
-             "execution_pc",     "execution_selector",
+    return { "execution_zero",   "execution_input",    "alu_dst_addr", "alu_ia",        "alu_ia_addr",
+             "alu_ib",           "alu_ib_addr",        "alu_ic",       "alu_op",        "alu_sel_op_add",
+             "execution_clk",    "execution_last",     "execution_pc", "execution_sel", "execution_selector",
              "lookup_dummy_inv", "lookup_dummy_counts" };
 }
 
 template <typename FF> RefVector<const FF> AvmFullRow<FF>::as_vector() const
 {
     return RefVector<const FF>{
-        execution_zero,   execution_input,
-        alu_dst_addr,     alu_ia,
-        alu_ia_addr,      alu_ib,
-        alu_ib_addr,      alu_ic,
-        alu_op,           alu_sel_op_add,
-        execution_clk,    execution_last,
-        execution_pc,     execution_selector,
+        execution_zero,   execution_input,     alu_dst_addr, alu_ia,        alu_ia_addr,
+        alu_ib,           alu_ib_addr,         alu_ic,       alu_op,        alu_sel_op_add,
+        execution_clk,    execution_last,      execution_pc, execution_sel, execution_selector,
         lookup_dummy_inv, lookup_dummy_counts,
     };
 }

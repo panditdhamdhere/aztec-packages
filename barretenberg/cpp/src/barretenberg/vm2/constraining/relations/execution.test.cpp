@@ -21,8 +21,8 @@ TEST(AvmConstrainingTest, ExecutionPositive)
 {
     // clang-format off
     TestTraceContainer trace({
-        {{ C::execution_pc, 0 }},
-        {{ C::execution_pc, 1 }, { C::execution_last, 1 }}
+         {{ C::execution_sel, 1 }, { C::execution_pc, 0 }},
+        {{ C::execution_sel, 1 }, { C::execution_pc, 1 }, { C::execution_last, 1 }}
     });
     // clang-format on
 
@@ -33,8 +33,8 @@ TEST(AvmConstrainingTest, ExecutionNegativePc)
 {
     // clang-format off
     TestTraceContainer trace({
-        {{ C::execution_pc, 0 }},
-        {{ C::execution_pc, 2 }, { C::execution_last, 1 }}
+        {{ C::execution_sel, 1 }, { C::execution_pc, 0 }},
+        {{ C::execution_sel, 1 }, { C::execution_pc, 2 }, { C::execution_last, 1 }}
     });
     // clang-format on
 

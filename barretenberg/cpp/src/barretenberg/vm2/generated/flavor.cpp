@@ -18,10 +18,11 @@ AvmFlavor::AllConstRefValues::AllConstRefValues(
     , execution_clk(il[10])
     , execution_last(il[11])
     , execution_pc(il[12])
-    , execution_selector(il[13])
-    , lookup_dummy_counts(il[14])
-    , lookup_dummy_inv(il[15])
-    , execution_pc_shift(il[16])
+    , execution_sel(il[13])
+    , execution_selector(il[14])
+    , lookup_dummy_counts(il[15])
+    , lookup_dummy_inv(il[16])
+    , execution_pc_shift(il[17])
 {}
 
 AvmFlavor::ProverPolynomials::ProverPolynomials(ProvingKey& proving_key)
@@ -51,6 +52,7 @@ AvmFlavor::AllConstRefValues AvmFlavor::ProverPolynomials::get_row(size_t row_id
                      execution_clk[row_idx],
                      execution_last[row_idx],
                      execution_pc[row_idx],
+                     execution_sel[row_idx],
                      execution_selector[row_idx],
                      lookup_dummy_counts[row_idx],
                      lookup_dummy_inv[row_idx],
@@ -72,6 +74,7 @@ AvmFlavor::CommitmentLabels::CommitmentLabels()
     Base::execution_clk = "EXECUTION_CLK";
     Base::execution_last = "EXECUTION_LAST";
     Base::execution_pc = "EXECUTION_PC";
+    Base::execution_sel = "EXECUTION_SEL";
     Base::execution_selector = "EXECUTION_SELECTOR";
     Base::lookup_dummy_inv = "LOOKUP_DUMMY_INV";
     Base::lookup_dummy_counts = "LOOKUP_DUMMY_COUNTS";

@@ -82,6 +82,11 @@ AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace
                        auto unshifted = polys.get_unshifted();
 
                        // FIXME: We don't support handling of derived polynomials.
+                       // This means that the derived polynomials will be empty.
+                       // Therefore, you shouldn't try to write to them.
+                       // In other words, the trace should be empty for inverse columns.
+                       // This will only be correct if the lookup/perm selectors are always 0.
+
                        // TODO: We are now visiting per-column. Profile if per-row is better.
                        // This would need changes to the trace container.
                        bb::parallel_for(unshifted.size(), [&](size_t i) {
@@ -127,7 +132,13 @@ std::pair<AvmProvingHelper::Proof, AvmProvingHelper::VkData> AvmProvingHelper::p
 
 bool AvmProvingHelper::check_circuit(tracegen::TraceContainer&& trace)
 {
-    const size_t num_rows = trace.get_num_rows();
+    // The proof is done over the whole circuit (2^21 rows).
+    // However, for check-circuit purposes we run only over the trace rows
+    // PLUS one extra row to catch any possible errors in the empty remainder
+    // of the circuit.
+    const size_t num_rows = trace.get_num_rows() + 1;
+    info("Running check circuit over ", num_rows, " rows.");
+
     auto polynomials = AVM_TRACK_TIME_V("proving/prove:compute_polynomials", compute_polynomials(trace));
     try {
         AVM_TRACK_TIME("proving/check_circuit", constraining::run_check_circuit(polynomials, num_rows));

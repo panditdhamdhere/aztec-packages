@@ -5,9 +5,10 @@ namespace execution(256);
 pol commit last;
 pol commit pc;
 pol commit clk;
+pol commit sel; // subtrace selector
 
 #[PC_INCREMENT]
-(1 - last) * (pc' - pc - 1) = 0;
+sel * (1 - last) * (pc' - pc - 1) = 0;
 
 // These are needed to have a non-empty set of columns for each type.
 pol constant zero;

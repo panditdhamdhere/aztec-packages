@@ -8,7 +8,7 @@ namespace bb::avm2 {
 // The entities that will be used in the flavor.
 // clang-format off
 #define AVM2_PRECOMPUTED_ENTITIES execution_zero
-#define AVM2_WIRE_ENTITIES execution_input, alu_dst_addr, alu_ia, alu_ia_addr, alu_ib, alu_ib_addr, alu_ic, alu_op, alu_sel_op_add, execution_clk, execution_last, execution_pc, execution_selector, lookup_dummy_counts
+#define AVM2_WIRE_ENTITIES execution_input, alu_dst_addr, alu_ia, alu_ia_addr, alu_ib, alu_ib_addr, alu_ic, alu_op, alu_sel_op_add, execution_clk, execution_last, execution_pc, execution_sel, execution_selector, lookup_dummy_counts
 #define AVM2_DERIVED_WITNESS_ENTITIES lookup_dummy_inv
 #define AVM2_SHIFTED_ENTITIES execution_pc_shift
 #define AVM2_TO_BE_SHIFTED(e) e.execution_pc
