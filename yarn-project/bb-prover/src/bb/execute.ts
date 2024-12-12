@@ -562,7 +562,7 @@ export async function generateAvmProofV2(
   }
 
   // logger(`original: ${inspect(input)}`);
-  logger.verbose(`original: ${inspect(input.avmHints.enqueuedCalls.items)}`);
+  // logger.verbose(`original: ${inspect(input.avmHints.enqueuedCalls.items)}`);
   // Convert the inputs to something that works with vm2 and messagepack.
   // const inputSubset = {
   //   ffs: [new Fr(0x123456789), new Fr(0x987654321)],
@@ -782,9 +782,9 @@ export async function verifyAvmProof(
   pathToBB: string,
   proofFullPath: string,
   verificationKeyPath: string,
-  log: LogFn,
+  logger: Logger,
 ): Promise<BBFailure | BBSuccess> {
-  return await verifyProofInternal(pathToBB, proofFullPath, verificationKeyPath, 'avm_verify', log);
+  return await verifyProofInternal(pathToBB, proofFullPath, verificationKeyPath, 'avm_verify', logger);
 }
 
 export async function verifyAvmProofV2(
@@ -793,7 +793,7 @@ export async function verifyAvmProofV2(
   proofFullPath: string,
   publicInputs: any,
   verificationKeyPath: string,
-  log: LogFn,
+  logger: Logger,
 ): Promise<BBFailure | BBSuccess> {
   setUpMessagePackExtensions();
   const encoder = new Encoder({
@@ -816,7 +816,7 @@ export async function verifyAvmProofV2(
     return { status: BB_RESULT.FAILURE, reason: `Could not write avm inputs to ${avmInputsPath}` };
   }
 
-  return await verifyProofInternal(pathToBB, proofFullPath, verificationKeyPath, 'avm2_verify', log, [
+  return await verifyProofInternal(pathToBB, proofFullPath, verificationKeyPath, 'avm2_verify', logger, [
     '--avm-public-inputs',
     avmInputsPath,
   ]);
@@ -877,7 +877,7 @@ async function verifyProofInternal(
   proofFullPath: string,
   verificationKeyPath: string,
   command: 'verify_ultra_honk' | 'verify_ultra_keccak_honk' | 'avm_verify' | 'avm2_verify',
-  log: LogFn,
+  logger: Logger,
   extraArgs: string[] = [],
 ): Promise<BBFailure | BBSuccess> {
   const binaryPresent = await fs
@@ -888,10 +888,21 @@ async function verifyProofInternal(
     return { status: BB_RESULT.FAILURE, reason: `Failed to find bb binary at ${pathToBB}` };
   }
 
+  const logFunction = (message: string) => {
+    logger.verbose(`AvmCircuit (verify) BB out - ${message}`);
+  };
+
   try {
-    const args = ['-p', proofFullPath, '-k', verificationKeyPath, ...extraArgs];
+    const args = [
+      '-p',
+      proofFullPath,
+      '-k',
+      verificationKeyPath,
+      logger.level === 'debug' || logger.level === 'trace' ? '-d' : logger.level === 'verbose' ? '-v' : '',
+      ...extraArgs,
+    ];
     const timer = new Timer();
-    const result = await executeBB(pathToBB, command, args, log);
+    const result = await executeBB(pathToBB, command, args, logFunction);
     const duration = timer.ms();
     if (result.status == BB_RESULT.SUCCESS) {
       return { status: BB_RESULT.SUCCESS, durationMs: duration };

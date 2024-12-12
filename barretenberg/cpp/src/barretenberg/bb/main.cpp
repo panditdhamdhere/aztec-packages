@@ -723,7 +723,7 @@ void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem:
 
     // NOTE: As opposed to Avm1 and other proof systems, the public inputs are NOT part of the proof.
     write_file(output_path / "proof", to_buffer(proof));
-    write_file(output_path / "vk", to_buffer(vk));
+    write_file(output_path / "vk", vk);
 
     print_avm_stats();
 }
