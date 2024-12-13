@@ -1,4 +1,4 @@
-#include "barretenberg/vm2/tracegen/alu_trace_builder.hpp"
+#include "barretenberg/vm2/tracegen/alu_trace.hpp"
 
 #include <cstddef>
 #include <cstdint>

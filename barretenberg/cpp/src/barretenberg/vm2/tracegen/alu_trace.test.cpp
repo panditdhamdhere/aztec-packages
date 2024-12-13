@@ -5,7 +5,7 @@
 
 #include "barretenberg/vm2/generated/flavor_settings.hpp"
 #include "barretenberg/vm2/generated/full_row.hpp"
-#include "barretenberg/vm2/tracegen/alu_trace_builder.hpp"
+#include "barretenberg/vm2/tracegen/alu_trace.hpp"
 #include "barretenberg/vm2/tracegen/test_trace_container.hpp"
 
 namespace bb::avm2::tracegen {

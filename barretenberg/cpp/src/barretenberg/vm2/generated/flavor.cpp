@@ -15,14 +15,37 @@ AvmFlavor::AllConstRefValues::AllConstRefValues(
     , alu_ic(il[7])
     , alu_op(il[8])
     , alu_sel_op_add(il[9])
-    , execution_clk(il[10])
-    , execution_last(il[11])
-    , execution_pc(il[12])
-    , execution_sel(il[13])
-    , execution_selector(il[14])
-    , lookup_dummy_counts(il[15])
-    , lookup_dummy_inv(il[16])
-    , execution_pc_shift(il[17])
+    , execution_addressing_error_idx(il[10])
+    , execution_addressing_error_kind(il[11])
+    , execution_clk(il[12])
+    , execution_ex_opcode(il[13])
+    , execution_indirect(il[14])
+    , execution_last(il[15])
+    , execution_op1(il[16])
+    , execution_op1_after_relative(il[17])
+    , execution_op2(il[18])
+    , execution_op2_after_relative(il[19])
+    , execution_op3(il[20])
+    , execution_op3_after_relative(il[21])
+    , execution_op4(il[22])
+    , execution_op4_after_relative(il[23])
+    , execution_pc(il[24])
+    , execution_rop1(il[25])
+    , execution_rop2(il[26])
+    , execution_rop3(il[27])
+    , execution_rop4(il[28])
+    , execution_sel(il[29])
+    , execution_sel_addressing_error(il[30])
+    , execution_sel_op1_is_address(il[31])
+    , execution_sel_op2_is_address(il[32])
+    , execution_sel_op3_is_address(il[33])
+    , execution_sel_op4_is_address(il[34])
+    , execution_selector(il[35])
+    , execution_stack_pointer_tag(il[36])
+    , execution_stack_pointer_val(il[37])
+    , lookup_dummy_counts(il[38])
+    , lookup_dummy_inv(il[39])
+    , execution_pc_shift(il[40])
 {}
 
 AvmFlavor::ProverPolynomials::ProverPolynomials(ProvingKey& proving_key)
@@ -49,11 +72,34 @@ AvmFlavor::AllConstRefValues AvmFlavor::ProverPolynomials::get_row(size_t row_id
                      alu_ic[row_idx],
                      alu_op[row_idx],
                      alu_sel_op_add[row_idx],
+                     execution_addressing_error_idx[row_idx],
+                     execution_addressing_error_kind[row_idx],
                      execution_clk[row_idx],
+                     execution_ex_opcode[row_idx],
+                     execution_indirect[row_idx],
                      execution_last[row_idx],
+                     execution_op1[row_idx],
+                     execution_op1_after_relative[row_idx],
+                     execution_op2[row_idx],
+                     execution_op2_after_relative[row_idx],
+                     execution_op3[row_idx],
+                     execution_op3_after_relative[row_idx],
+                     execution_op4[row_idx],
+                     execution_op4_after_relative[row_idx],
                      execution_pc[row_idx],
+                     execution_rop1[row_idx],
+                     execution_rop2[row_idx],
+                     execution_rop3[row_idx],
+                     execution_rop4[row_idx],
                      execution_sel[row_idx],
+                     execution_sel_addressing_error[row_idx],
+                     execution_sel_op1_is_address[row_idx],
+                     execution_sel_op2_is_address[row_idx],
+                     execution_sel_op3_is_address[row_idx],
+                     execution_sel_op4_is_address[row_idx],
                      execution_selector[row_idx],
+                     execution_stack_pointer_tag[row_idx],
+                     execution_stack_pointer_val[row_idx],
                      lookup_dummy_counts[row_idx],
                      lookup_dummy_inv[row_idx],
                      execution_pc_shift[row_idx] };
@@ -71,11 +117,34 @@ AvmFlavor::CommitmentLabels::CommitmentLabels()
     Base::alu_ic = "ALU_IC";
     Base::alu_op = "ALU_OP";
     Base::alu_sel_op_add = "ALU_SEL_OP_ADD";
+    Base::execution_addressing_error_idx = "EXECUTION_ADDRESSING_ERROR_IDX";
+    Base::execution_addressing_error_kind = "EXECUTION_ADDRESSING_ERROR_KIND";
     Base::execution_clk = "EXECUTION_CLK";
+    Base::execution_ex_opcode = "EXECUTION_EX_OPCODE";
+    Base::execution_indirect = "EXECUTION_INDIRECT";
     Base::execution_last = "EXECUTION_LAST";
+    Base::execution_op1 = "EXECUTION_OP1";
+    Base::execution_op1_after_relative = "EXECUTION_OP1_AFTER_RELATIVE";
+    Base::execution_op2 = "EXECUTION_OP2";
+    Base::execution_op2_after_relative = "EXECUTION_OP2_AFTER_RELATIVE";
+    Base::execution_op3 = "EXECUTION_OP3";
+    Base::execution_op3_after_relative = "EXECUTION_OP3_AFTER_RELATIVE";
+    Base::execution_op4 = "EXECUTION_OP4";
+    Base::execution_op4_after_relative = "EXECUTION_OP4_AFTER_RELATIVE";
     Base::execution_pc = "EXECUTION_PC";
+    Base::execution_rop1 = "EXECUTION_ROP1";
+    Base::execution_rop2 = "EXECUTION_ROP2";
+    Base::execution_rop3 = "EXECUTION_ROP3";
+    Base::execution_rop4 = "EXECUTION_ROP4";
     Base::execution_sel = "EXECUTION_SEL";
+    Base::execution_sel_addressing_error = "EXECUTION_SEL_ADDRESSING_ERROR";
+    Base::execution_sel_op1_is_address = "EXECUTION_SEL_OP1_IS_ADDRESS";
+    Base::execution_sel_op2_is_address = "EXECUTION_SEL_OP2_IS_ADDRESS";
+    Base::execution_sel_op3_is_address = "EXECUTION_SEL_OP3_IS_ADDRESS";
+    Base::execution_sel_op4_is_address = "EXECUTION_SEL_OP4_IS_ADDRESS";
     Base::execution_selector = "EXECUTION_SELECTOR";
+    Base::execution_stack_pointer_tag = "EXECUTION_STACK_POINTER_TAG";
+    Base::execution_stack_pointer_val = "EXECUTION_STACK_POINTER_VAL";
     Base::lookup_dummy_inv = "LOOKUP_DUMMY_INV";
     Base::lookup_dummy_counts = "LOOKUP_DUMMY_COUNTS";
 };

@@ -2,7 +2,9 @@
 
 #include <list>
 
-#include "barretenberg/vm2/tracegen/alu_trace_builder.hpp"
+#include "barretenberg/numeric/bitop/get_msb.hpp"
+#include "barretenberg/vm2/tracegen/alu_trace.hpp"
+#include "barretenberg/vm2/tracegen/execution_trace.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
 namespace bb::avm2 {
@@ -26,10 +28,20 @@ TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
     fill_precomputed_columns(trace);
 
     // TODO: We can't parallelize this yet because the TraceContainer is not thread-safe.
+    ExecutionTraceBuilder exec_builder;
     AluTraceBuilder alu_builder;
     alu_builder.process(events.alu, trace);
     events.alu.clear();
+    exec_builder.process(events.execution, events.addressing, trace);
+    events.execution.clear();
+    events.addressing.clear();
 
+    const auto rows = trace.get_num_rows();
+    info("Generated trace with ",
+         rows,
+         " rows (closest power of 2: ",
+         numeric::get_msb(numeric::round_up_power_2(rows)),
+         ")");
     return trace;
 }
 
