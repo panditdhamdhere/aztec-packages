@@ -16,6 +16,8 @@ struct PublicKeysHint {
     AffinePoint masterOutgoingViewingPublicKey;
     AffinePoint masterTaggingPublicKey;
 
+    bool operator==(const PublicKeysHint& other) const = default;
+
     MSGPACK_FIELDS(masterNullifierPublicKey,
                    masterIncomingViewingPublicKey,
                    masterOutgoingViewingPublicKey,
@@ -30,6 +32,9 @@ struct ContractInstanceHint {
     ContractClassId contractClassId;
     FF initializationHash;
     PublicKeysHint publicKeys;
+    // TODO: missing membership hints.
+
+    bool operator==(const ContractInstanceHint& other) const = default;
 
     MSGPACK_FIELDS(address, exists, salt, deployer, contractClassId, initializationHash, publicKeys);
 };
@@ -40,12 +45,16 @@ struct ContractClassHint {
     FF publicBytecodeCommitment;
     std::vector<uint8_t> packedBytecode;
 
+    bool operator==(const ContractClassHint& other) const = default;
+
     MSGPACK_FIELDS(artifactHash, privateFunctionsRoot, publicBytecodeCommitment, packedBytecode);
 };
 
 struct ExecutionHints {
     std::vector<ContractInstanceHint> contractInstances;
     std::vector<ContractClassHint> contractClasses;
+
+    bool operator==(const ExecutionHints& other) const = default;
 
     MSGPACK_FIELDS(contractInstances, contractClasses);
 };
@@ -56,6 +65,8 @@ struct PublicExecutionRequest {
     std::vector<FF> args;
     bool isStatic;
 
+    bool operator==(const PublicExecutionRequest& other) const = default;
+
     MSGPACK_FIELDS(contractAddress, sender, args, isStatic);
 };
 
@@ -65,18 +76,20 @@ struct PublicInputs {
 
     static PublicInputs from(const std::vector<uint8_t>& data);
     std::vector<std::vector<FF>> to_columns() const { return { dummy }; }
+    bool operator==(const PublicInputs& other) const = default;
 
     MSGPACK_FIELDS(dummy);
 };
 
 struct AvmProvingInputs {
     std::vector<PublicExecutionRequest> enqueuedCalls;
-    ExecutionHints hints;
     PublicInputs publicInputs;
+    ExecutionHints hints;
 
     static AvmProvingInputs from(const std::vector<uint8_t>& data);
+    bool operator==(const AvmProvingInputs& other) const = default;
 
-    MSGPACK_FIELDS(enqueuedCalls, hints);
+    MSGPACK_FIELDS(enqueuedCalls, publicInputs, hints);
 };
 
 } // namespace bb::avm2

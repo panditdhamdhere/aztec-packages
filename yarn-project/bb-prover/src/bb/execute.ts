@@ -1,15 +1,12 @@
-import { type AvmCircuitInputs, AztecAddress, Fq, Fr, Point, Vector } from '@aztec/circuits.js';
+import { type AvmCircuitInputs, serializeWithMessagePack } from '@aztec/circuits.js';
 import { sha256 } from '@aztec/foundation/crypto';
 import { type LogFn, type Logger } from '@aztec/foundation/log';
 import { Timer } from '@aztec/foundation/timer';
 import { type NoirCompiledCircuit } from '@aztec/types/noir';
 
-import { strict as assert } from 'assert';
 import * as proc from 'child_process';
 import { promises as fs } from 'fs';
-import { Encoder, addExtension } from 'msgpackr';
 import { basename, dirname, join } from 'path';
-import { inspect } from 'util';
 
 import { type UltraHonkFlavor } from '../honk.js';
 
@@ -495,36 +492,6 @@ export async function generateTubeProof(
   }
 }
 
-function setUpMessagePackExtensions() {
-  // C++ Fr and Fq classes work well with the buffer serialization.
-  addExtension({
-    Class: Fr,
-    write: (fr: Fr) => fr.toBuffer(),
-  });
-  addExtension({
-    Class: Fq,
-    write: (fq: Fq) => fq.toBuffer(),
-  });
-  // AztecAddress is a class that has a field in TS, but just a field in C++.
-  addExtension({
-    Class: AztecAddress,
-    write: (addr: AztecAddress) => addr.toField(),
-  });
-  // If we find a vector, we just use the underlying list.
-  addExtension({
-    Class: Vector,
-    write: v => v.items,
-  });
-  // Affine points are a mess, we do our best.
-  addExtension({
-    Class: Point,
-    write: (p: Point) => {
-      assert(!p.inf, 'Cannot serialize infinity');
-      return { x: new Fq(p.x.toBigInt()), y: new Fq(p.y.toBigInt()) };
-    },
-  });
-}
-
 /**
  * Used for generating AVM proofs.
  * It is assumed that the working directory is a temporary and/or random directory used solely for generating this proof.
@@ -561,65 +528,7 @@ export async function generateAvmProofV2(
     return { status: BB_RESULT.FAILURE, reason: `Failed to find bb binary at ${pathToBB}` };
   }
 
-  // logger(`original: ${inspect(input)}`);
-  // logger.verbose(`original: ${inspect(input.avmHints.enqueuedCalls.items)}`);
-  // Convert the inputs to something that works with vm2 and messagepack.
-  // const inputSubset = {
-  //   ffs: [new Fr(0x123456789), new Fr(0x987654321)],
-  //   affine: new Point(new Fr(0x123456789), new Fr(0x987654321), false),
-  //   fq: new Fq(0x123456789),
-  //   addr: AztecAddress.fromBigInt(0x123456789n),
-  //   contract_instance_hints: input.avmHints.contractInstances,
-  // };
-  const hints = {
-    contractInstances: [] as any[],
-    contractClasses: [] as any[],
-  };
-  const inputs = {
-    hints: hints,
-    enqueuedCalls: [] as any[],
-    // Placeholder for now.
-    publicInputs: {
-      dummy: [] as any[],
-    },
-  };
-  // For now we only transform bytecode requests. If we ever have any other
-  // contract instance hint, this will clash!
-  // See https://aztecprotocol.slack.com/archives/C04DL2L1UP2/p1733485524309389.
-  for (const bytecodeHint of input.avmHints.contractBytecodeHints.items) {
-    hints.contractInstances.push(bytecodeHint.contractInstanceHint);
-    hints.contractClasses.push({
-      artifactHash: bytecodeHint.contractClassHint.artifactHash,
-      privateFunctionsRoot: bytecodeHint.contractClassHint.privateFunctionsRoot,
-      publicBytecodeCommitment: bytecodeHint.contractClassHint.publicBytecodeCommitment,
-      packedBytecode: bytecodeHint.bytecode,
-    });
-  }
-  // TODO: for now I only convert app logic requests?
-  for (const enqueuedCall of input.avmHints.enqueuedCalls.items) {
-    inputs.enqueuedCalls.push({
-      contractAddress: enqueuedCall.contractAddress,
-      sender: new Fr(0), // FIXME
-      args: enqueuedCall.calldata.items,
-      isStatic: false, // FIXME
-    });
-  }
-  // inputs.enqueuedCalls.push({
-  //   contractAddress: input.publicInputs.callContext.contractAddress,
-  //   sender: input.publicInputs.callContext.msgSender,
-  //   args: input.calldata,
-  //   isStatic: input.publicInputs.callContext.isStaticCall,
-  // });
-  logger.verbose(`inputs: ${inspect(inputs)}`);
-
-  setUpMessagePackExtensions();
-  const encoder = new Encoder({
-    // always encode JS objects as MessagePack maps
-    // this makes it compatible with other MessagePack decoders
-    useRecords: false,
-    int64AsType: 'bigint',
-  });
-  const inputsBuffer = encoder.encode(inputs);
+  const inputsBuffer = input.serializeForAvm2();
 
   try {
     // Write the inputs to the working directory.
@@ -795,14 +704,7 @@ export async function verifyAvmProofV2(
   verificationKeyPath: string,
   logger: Logger,
 ): Promise<BBFailure | BBSuccess> {
-  setUpMessagePackExtensions();
-  const encoder = new Encoder({
-    // always encode JS objects as MessagePack maps
-    // this makes it compatible with other MessagePack decoders
-    useRecords: false,
-    int64AsType: 'bigint',
-  });
-  const inputsBuffer = encoder.encode(publicInputs);
+  const inputsBuffer = serializeWithMessagePack(publicInputs);
 
   // Write the inputs to the working directory.
   const filePresent = async (file: string) =>
