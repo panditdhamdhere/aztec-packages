@@ -5,7 +5,7 @@ namespace bb::avm2 {
 
 AvmFlavor::AllConstRefValues::AllConstRefValues(
     const RefArray<AvmFlavor::AllConstRefValues::BaseDataType, AvmFlavor::NUM_ALL_ENTITIES>& il)
-    : execution_zero(il[0])
+    : precomputed_first_row(il[0])
     , execution_input(il[1])
     , alu_dst_addr(il[2])
     , alu_ia(il[3])
@@ -45,7 +45,8 @@ AvmFlavor::AllConstRefValues::AllConstRefValues(
     , execution_stack_pointer_val(il[37])
     , lookup_dummy_counts(il[38])
     , lookup_dummy_inv(il[39])
-    , execution_pc_shift(il[40])
+    , execution_clk_shift(il[40])
+    , execution_sel_shift(il[41])
 {}
 
 AvmFlavor::ProverPolynomials::ProverPolynomials(ProvingKey& proving_key)
@@ -62,7 +63,7 @@ AvmFlavor::ProverPolynomials::ProverPolynomials(ProvingKey& proving_key)
 
 AvmFlavor::AllConstRefValues AvmFlavor::ProverPolynomials::get_row(size_t row_idx) const
 {
-    return RefArray{ execution_zero[row_idx],
+    return RefArray{ precomputed_first_row[row_idx],
                      execution_input[row_idx],
                      alu_dst_addr[row_idx],
                      alu_ia[row_idx],
@@ -102,12 +103,13 @@ AvmFlavor::AllConstRefValues AvmFlavor::ProverPolynomials::get_row(size_t row_id
                      execution_stack_pointer_val[row_idx],
                      lookup_dummy_counts[row_idx],
                      lookup_dummy_inv[row_idx],
-                     execution_pc_shift[row_idx] };
+                     execution_clk_shift[row_idx],
+                     execution_sel_shift[row_idx] };
 }
 
 AvmFlavor::CommitmentLabels::CommitmentLabels()
 {
-    Base::execution_zero = "EXECUTION_ZERO";
+    Base::precomputed_first_row = "PRECOMPUTED_FIRST_ROW";
     Base::execution_input = "EXECUTION_INPUT";
     Base::alu_dst_addr = "ALU_DST_ADDR";
     Base::alu_ia = "ALU_IA";

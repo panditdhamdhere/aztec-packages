@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <bits/utility.h>
 #include <span>
 #include <stdexcept>
 
@@ -8,7 +9,8 @@
 
 namespace bb::avm2::constraining {
 
-template <typename Relation, typename Trace> void check_relation(const Trace& trace, std::span<size_t> subrelations)
+template <typename Relation, typename Trace>
+void check_relation_internal(const Trace& trace, std::span<size_t> subrelations)
 {
     typename Relation::SumcheckArrayOfValuesOverSubrelations result{};
 
@@ -27,19 +29,16 @@ template <typename Relation, typename Trace> void check_relation(const Trace& tr
     }
 }
 
-template <typename Relation, typename Trace> void check_relation(const Trace& trace)
+template <typename Relation, typename Trace, typename... Ts> void check_relation(const Trace& trace, Ts... subrelation)
 {
-    std::array<size_t, Relation::SUBRELATION_PARTIAL_LENGTHS.size()> subrelations{};
-    for (size_t i = 0; i < subrelations.size(); ++i) {
-        subrelations[i] = i;
-    }
-    check_relation<Relation>(trace, subrelations);
+    std::array<size_t, sizeof...(Ts)> subrelations = { subrelation... };
+    check_relation_internal<Relation>(trace, subrelations);
 }
 
-template <typename Relation, typename Trace> void check_relation(const Trace& trace, size_t subrelation)
+template <typename Relation, typename Trace> void check_relation(const Trace& trace)
 {
-    std::array<size_t, 1> subrelations = { subrelation };
-    check_relation<Relation>(trace, subrelations);
+    auto subrelations = std::make_index_sequence<Relation::SUBRELATION_PARTIAL_LENGTHS.size()>();
+    [&]<size_t... Is>(std::index_sequence<Is...>) { check_relation<Relation>(trace, Is...); }(subrelations);
 }
 
 } // namespace bb::avm2::constraining

@@ -1,0 +1,4 @@
+// General/shared precomputed columns.
+namespace precomputed(256);
+
+pol constant first_row;

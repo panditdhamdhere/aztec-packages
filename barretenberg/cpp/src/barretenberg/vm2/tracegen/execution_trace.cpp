@@ -44,7 +44,8 @@ void ExecutionTraceBuilder::process(
 
         trace.set(row,
                   { {
-                      { C::execution_sel, 1 }, // active execution trace
+                      { C::execution_sel, 1 },   // active execution trace
+                      { C::execution_clk, row }, // TODO: we may want this in the event
                       { C::execution_ex_opcode, static_cast<size_t>(ex_event.opcode) },
                       { C::execution_op1, static_cast<FF>(operands.at(0)) },
                       { C::execution_op2, static_cast<FF>(operands.at(1)) },

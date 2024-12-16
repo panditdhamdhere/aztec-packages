@@ -1,5 +1,6 @@
 include "alu.pil";
 include "addressing.pil";
+include "precomputed.pil";
 
 namespace execution(256);
 
@@ -22,11 +23,31 @@ pol commit pc;
 pol commit clk;
 pol commit last;
 
-#[PC_INCREMENT]
-sel * (1 - last) * (pc' - pc - 1) = 0;
+// Selector constraints
+sel * (1 - sel) = 0;
+last * (1 - last) = 0;
+
+#[CLK_INCREMENT]
+sel * (1 - last) * (clk' - clk - 1) = 0;
+
+// If the current row is an execution row, then either
+// the next row is an execution row, or the current row is marked as the last row.
+// sel => (sel' v last) = 1              iff
+// ¬sel v (sel' v last) = 1              iff
+// ¬(¬sel v (sel' v last)) = 0           iff
+// sel ^ (¬sel' ^ ¬last) = 0             iff
+// sel * (1 - sel') * (1 - last) = 0
+#[TRACE_CONTINUITY_1]
+sel * ((1 - sel') * (1 - last)) = 0;
+// If the current row is not an execution row, then there are no more execution rows after that.
+// (not enforced for the first row)
+#[TRACE_CONTINUITY_2]
+(1 - precomputed.first_row) * (1 - sel) * sel' = 0;
+// If the current row is the last row, then the next row is not an execution row.
+#[LAST_IS_LAST]
+last * sel' = 0;
 
 // These are needed to have a non-empty set of columns for each type.
-pol constant zero;
 pol commit selector;
 pol public input;
 #[LOOKUP_DUMMY]

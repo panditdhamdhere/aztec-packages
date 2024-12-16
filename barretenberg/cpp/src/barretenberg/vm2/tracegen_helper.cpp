@@ -5,6 +5,7 @@
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/vm2/tracegen/alu_trace.hpp"
 #include "barretenberg/vm2/tracegen/execution_trace.hpp"
+#include "barretenberg/vm2/tracegen/precomputed_trace.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
 namespace bb::avm2 {
@@ -16,8 +17,8 @@ namespace {
 
 void fill_precomputed_columns(TraceContainer& trace)
 {
-    // Nothing to do yet!
-    (void)trace;
+    PrecomputedTraceBuilder precomputed_builder;
+    precomputed_builder.process(trace);
 }
 
 } // namespace

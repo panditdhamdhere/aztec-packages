@@ -10,7 +10,7 @@ template <typename FF_> class executionImpl {
   public:
     using FF = FF_;
 
-    static constexpr std::array<size_t, 1> SUBRELATION_PARTIAL_LENGTHS = { 4 };
+    static constexpr std::array<size_t, 6> SUBRELATION_PARTIAL_LENGTHS = { 3, 3, 4, 4, 4, 3 };
 
     template <typename ContainerOverSubrelations, typename AllEntities>
     void static accumulate(ContainerOverSubrelations& evals,
@@ -21,10 +21,42 @@ template <typename FF_> class executionImpl {
 
         {
             using Accumulator = typename std::tuple_element_t<0, ContainerOverSubrelations>;
-            auto tmp = ((new_term.execution_sel * (FF(1) - new_term.execution_last)) *
-                        ((new_term.execution_pc_shift - new_term.execution_pc) - FF(1)));
+            auto tmp = (new_term.execution_sel * (FF(1) - new_term.execution_sel));
             tmp *= scaling_factor;
             std::get<0>(evals) += typename Accumulator::View(tmp);
+        }
+        {
+            using Accumulator = typename std::tuple_element_t<1, ContainerOverSubrelations>;
+            auto tmp = (new_term.execution_last * (FF(1) - new_term.execution_last));
+            tmp *= scaling_factor;
+            std::get<1>(evals) += typename Accumulator::View(tmp);
+        }
+        {
+            using Accumulator = typename std::tuple_element_t<2, ContainerOverSubrelations>;
+            auto tmp = ((new_term.execution_sel * (FF(1) - new_term.execution_last)) *
+                        ((new_term.execution_clk_shift - new_term.execution_clk) - FF(1)));
+            tmp *= scaling_factor;
+            std::get<2>(evals) += typename Accumulator::View(tmp);
+        }
+        {
+            using Accumulator = typename std::tuple_element_t<3, ContainerOverSubrelations>;
+            auto tmp =
+                (new_term.execution_sel * ((FF(1) - new_term.execution_sel_shift) * (FF(1) - new_term.execution_last)));
+            tmp *= scaling_factor;
+            std::get<3>(evals) += typename Accumulator::View(tmp);
+        }
+        {
+            using Accumulator = typename std::tuple_element_t<4, ContainerOverSubrelations>;
+            auto tmp = (((FF(1) - new_term.precomputed_first_row) * (FF(1) - new_term.execution_sel)) *
+                        new_term.execution_sel_shift);
+            tmp *= scaling_factor;
+            std::get<4>(evals) += typename Accumulator::View(tmp);
+        }
+        {
+            using Accumulator = typename std::tuple_element_t<5, ContainerOverSubrelations>;
+            auto tmp = (new_term.execution_last * new_term.execution_sel_shift);
+            tmp *= scaling_factor;
+            std::get<5>(evals) += typename Accumulator::View(tmp);
         }
     }
 };
@@ -36,14 +68,23 @@ template <typename FF> class execution : public Relation<executionImpl<FF>> {
     static std::string get_subrelation_label(size_t index)
     {
         switch (index) {
-        case 0:
-            return "PC_INCREMENT";
+        case 2:
+            return "CLK_INCREMENT";
+        case 3:
+            return "TRACE_CONTINUITY_1";
+        case 4:
+            return "TRACE_CONTINUITY_2";
+        case 5:
+            return "LAST_IS_LAST";
         }
         return std::to_string(index);
     }
 
     // Subrelation indices constants, to be used in tests.
-    static constexpr size_t SR_PC_INCREMENT = 0;
+    static constexpr size_t SR_CLK_INCREMENT = 2;
+    static constexpr size_t SR_TRACE_CONTINUITY_1 = 3;
+    static constexpr size_t SR_TRACE_CONTINUITY_2 = 4;
+    static constexpr size_t SR_LAST_IS_LAST = 5;
 };
 
 } // namespace bb::avm2
