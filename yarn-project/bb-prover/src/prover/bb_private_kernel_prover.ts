@@ -179,15 +179,11 @@ export class BBNativePrivateKernelProver implements PrivateKernelProver {
 
     this.log.debug(`Verifying with key: ${verificationKey.keyAsFields.hash.toString()}`);
 
-    const logFunction = (message: string) => {
-      this.log.debug(`${circuitType} BB out - ${message}`);
-    };
-
     const result = await this.verifyProofFromKey(
       getUltraHonkFlavorForCircuit(circuitType),
       verificationKey.keyAsBytes,
       proof,
-      logFunction,
+      this.log,
     );
 
     if (result.status === BB_RESULT.FAILURE) {
@@ -218,19 +214,14 @@ export class BBNativePrivateKernelProver implements PrivateKernelProver {
     return result.circuitSize as number;
   }
 
-  private async verifyProofFromKey(
-    flavor: UltraHonkFlavor,
-    verificationKey: Buffer,
-    proof: Proof,
-    logFunction: (message: string) => void = () => {},
-  ) {
+  private async verifyProofFromKey(flavor: UltraHonkFlavor, verificationKey: Buffer, proof: Proof, logger: Logger) {
     const operation = async (bbWorkingDirectory: string) => {
       const proofFileName = `${bbWorkingDirectory}/proof`;
       const verificationKeyPath = `${bbWorkingDirectory}/vk`;
 
       await fs.writeFile(proofFileName, proof.buffer);
       await fs.writeFile(verificationKeyPath, verificationKey);
-      return await verifyProof(this.bbBinaryPath, proofFileName, verificationKeyPath!, flavor, logFunction);
+      return await verifyProof(this.bbBinaryPath, proofFileName, verificationKeyPath!, flavor, logger);
     };
     return await this.runInDirectory(operation);
   }
