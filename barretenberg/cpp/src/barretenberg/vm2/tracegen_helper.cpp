@@ -1,7 +1,10 @@
 #include "barretenberg/vm2/tracegen_helper.hpp"
 
+#include <array>
+#include <functional>
 #include <list>
 
+#include "barretenberg/common/thread.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/vm2/tracegen/alu_trace.hpp"
 #include "barretenberg/vm2/tracegen/execution_trace.hpp"
@@ -26,16 +29,25 @@ void fill_precomputed_columns(TraceContainer& trace)
 TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
 {
     TraceContainer trace;
-    fill_precomputed_columns(trace);
-
-    // TODO: We can't parallelize this yet because the TraceContainer is not thread-safe.
-    ExecutionTraceBuilder exec_builder;
-    AluTraceBuilder alu_builder;
-    alu_builder.process(events.alu, trace);
-    events.alu.clear();
-    exec_builder.process(events.execution, events.addressing, trace);
-    events.execution.clear();
-    events.addressing.clear();
+    // We process the events in parallel. Ideally the jobs should access disjoint column sets.
+    std::array<std::function<void()>, 3> jobs = {
+        [&]() {
+            // TODO: move parallelism to fill_precomputed_columns when we have more precomputed columns.
+            fill_precomputed_columns(trace);
+        },
+        [&]() {
+            ExecutionTraceBuilder exec_builder;
+            exec_builder.process(events.execution, events.addressing, trace);
+            events.execution.clear();
+            events.addressing.clear();
+        },
+        [&]() {
+            AluTraceBuilder alu_builder;
+            alu_builder.process(events.alu, trace);
+            events.alu.clear();
+        },
+    };
+    parallel_for(jobs.size(), [&](size_t i) { jobs[i](); });
 
     const auto rows = trace.get_num_rows();
     info("Generated trace with ",

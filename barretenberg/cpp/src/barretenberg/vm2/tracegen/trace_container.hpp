@@ -1,9 +1,12 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <functional>
+#include <memory>
 #include <ranges>
+#include <shared_mutex>
 #include <span>
 #include <unordered_map>
 
@@ -12,9 +15,12 @@
 
 namespace bb::avm2::tracegen {
 
+// This container is thread-safe.
+// Contention can only happen when concurrently accessing the same column.
 class TraceContainer {
   public:
     using FF = AvmFlavorSettings::FF;
+    TraceContainer();
 
     void set(Column col, size_t row, const FF& value);
     // Bulk setting for a given row.
@@ -26,13 +32,25 @@ class TraceContainer {
     size_t get_column_size(Column col) const;
     // Maximum number of rows in any column.
     size_t get_num_rows() const;
+    // Number of columns.
+    static constexpr size_t num_columns() { return NUM_COLUMNS; }
 
     // Free column memory.
     void clear_column(Column col);
 
-  protected:
+  private:
+    // We use a mutex per column to allow for concurrent writes.
+    // Observe that therefore concurrent write access to different columns is cheap.
+    struct SparseColumn {
+        std::shared_mutex mutex;
+        std::unordered_map<size_t, FF> rows;
+    };
+    static constexpr size_t NUM_COLUMNS = static_cast<size_t>(ColumnAndShifts::NUM_COLUMNS);
     // We store the trace as a sparse matrix.
-    std::unordered_map<Column, /*rows*/ std::unordered_map<size_t, FF>> trace;
+    // We use a unique_ptr to allocate the array in the heap vs the stack.
+    // Even if the _content_ of each unordered_map is always heap-allocated, if we have 3k columns
+    // we could unnecessarily put strain on the stack with sizeof(unordered_map) * 3k bytes.
+    std::unique_ptr<std::array<SparseColumn, NUM_COLUMNS>> trace;
 };
 
 } // namespace bb::avm2::tracegen

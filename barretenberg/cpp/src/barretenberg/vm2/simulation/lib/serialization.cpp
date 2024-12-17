@@ -196,7 +196,7 @@ const std::unordered_map<WireOpCode, std::vector<OperandType>> WireOpCode_WIRE_F
 
 Operand::operator bool() const
 {
-    return static_cast<bool>(this->operator uint8_t());
+    return (this->operator uint8_t() == 1);
 }
 
 Operand::operator uint8_t() const

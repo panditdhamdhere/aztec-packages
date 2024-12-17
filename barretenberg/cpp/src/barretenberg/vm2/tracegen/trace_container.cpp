@@ -1,13 +1,21 @@
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
+#include "barretenberg/common/log.hpp"
+
 namespace bb::avm2::tracegen {
+
+TraceContainer::TraceContainer()
+    : trace(std::make_unique<std::array<SparseColumn, NUM_COLUMNS>>())
+{}
 
 void TraceContainer::set(Column col, size_t row, const FF& value)
 {
+    auto& column_data = (*trace)[static_cast<size_t>(col)];
+    std::unique_lock lock(column_data.mutex);
     if (value != 0) {
-        trace[col][row] = value;
+        column_data.rows[row] = value;
     } else {
-        trace[col].erase(row);
+        column_data.rows.erase(row);
     }
 }
 
@@ -21,11 +29,9 @@ void TraceContainer::set(size_t row, std::span<const std::pair<Column, FF>> valu
 // TODO: we could cache this, but we'd have to watch out when we set a value to 0.
 size_t TraceContainer::get_column_size(Column col) const
 {
-    auto col_it = trace.find(col);
-    if (col_it == trace.end()) {
-        return 0;
-    }
-    auto keys = std::views::keys(col_it->second);
+    auto& column_data = (*trace)[static_cast<size_t>(col)];
+    std::shared_lock lock(column_data.mutex);
+    auto keys = std::views::keys(column_data.rows);
     const auto it = std::max_element(keys.begin(), keys.end());
     return it == keys.end() ? 0 : *it + 1;
 }
@@ -33,27 +39,26 @@ size_t TraceContainer::get_column_size(Column col) const
 size_t TraceContainer::get_num_rows() const
 {
     size_t max_rows = 0;
-    auto active_columns = std::views::keys(trace);
-    for (const auto& col : active_columns) {
-        max_rows = std::max(max_rows, get_column_size(col));
+    for (size_t col = 0; col < num_columns(); ++col) {
+        max_rows = std::max(max_rows, get_column_size(static_cast<Column>(col)));
     }
     return max_rows;
 }
 
 void TraceContainer::visit_column(Column col, const std::function<void(size_t, const FF&)>& visitor) const
 {
-    auto col_it = trace.find(col);
-    if (col_it == trace.end()) {
-        return;
-    }
-    for (const auto& [row, value] : col_it->second) {
+    auto& column_data = (*trace)[static_cast<size_t>(col)];
+    std::shared_lock lock(column_data.mutex);
+    for (const auto& [row, value] : column_data.rows) {
         visitor(row, value);
     }
 }
 
 void TraceContainer::clear_column(Column col)
 {
-    trace.erase(col);
+    auto& column_data = (*trace)[static_cast<size_t>(col)];
+    std::unique_lock lock(column_data.mutex);
+    column_data.rows.clear();
 }
 
 } // namespace bb::avm2::tracegen
