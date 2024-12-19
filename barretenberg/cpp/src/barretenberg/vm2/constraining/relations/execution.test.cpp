@@ -29,18 +29,6 @@ TEST(ExecutionConstrainingTest, AllPositive)
     check_relation<execution>(trace.as_rows());
 }
 
-TEST(ExecutionConstrainingTest, ClkIncrementPositive)
-{
-    // clang-format off
-    TestTraceContainer trace({
-        {{ C::execution_sel, 1 }, { C::execution_clk, 0 }},
-        {{ C::execution_sel, 1 }, { C::execution_clk, 2 }, { C::execution_last, 1 }}
-    });
-    // clang-format on
-
-    EXPECT_THROW_WITH_MESSAGE(check_relation<execution>(trace.as_rows(), execution::SR_CLK_INCREMENT), "CLK_INCREMENT");
-}
-
 TEST(ExecutionConstrainingTest, ContinuityPositive)
 {
     // clang-format off

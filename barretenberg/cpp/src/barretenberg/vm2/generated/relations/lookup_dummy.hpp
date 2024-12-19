@@ -14,22 +14,22 @@ class lookup_dummy_lookup_settings {
     static constexpr size_t WRITE_TERMS = 1;
     static constexpr size_t READ_TERM_TYPES[READ_TERMS] = { 0 };
     static constexpr size_t WRITE_TERM_TYPES[WRITE_TERMS] = { 0 };
-    static constexpr size_t LOOKUP_TUPLE_SIZE = 1;
+    static constexpr size_t LOOKUP_TUPLE_SIZE = 4;
     static constexpr size_t INVERSE_EXISTS_POLYNOMIAL_DEGREE = 4;
     static constexpr size_t READ_TERM_DEGREE = 0;
     static constexpr size_t WRITE_TERM_DEGREE = 0;
 
     template <typename AllEntities> static inline auto inverse_polynomial_is_computed_at_row(const AllEntities& in)
     {
-        return (in.execution_selector == 1 || in.execution_selector == 1);
+        return (in.execution_sel == 1 || in.precomputed_sel_bitwise == 1);
     }
 
     template <typename Accumulator, typename AllEntities>
     static inline auto compute_inverse_exists(const AllEntities& in)
     {
         using View = typename Accumulator::View;
-        const auto is_operation = View(in.execution_selector);
-        const auto is_table_entry = View(in.execution_selector);
+        const auto is_operation = View(in.execution_sel);
+        const auto is_table_entry = View(in.precomputed_sel_bitwise);
         return (is_operation + is_table_entry - is_operation * is_table_entry);
     }
 
@@ -37,20 +37,32 @@ class lookup_dummy_lookup_settings {
     {
         return std::forward_as_tuple(in.lookup_dummy_inv,
                                      in.lookup_dummy_counts,
-                                     in.execution_selector,
-                                     in.execution_selector,
+                                     in.execution_sel,
+                                     in.precomputed_sel_bitwise,
+                                     in.execution_sel,
                                      in.execution_clk,
-                                     in.execution_clk);
+                                     in.execution_clk,
+                                     in.execution_clk,
+                                     in.precomputed_bitwise_op_id,
+                                     in.precomputed_bitwise_input_a,
+                                     in.precomputed_bitwise_input_b,
+                                     in.precomputed_bitwise_output);
     }
 
     template <typename AllEntities> static inline auto get_nonconst_entities(AllEntities& in)
     {
         return std::forward_as_tuple(in.lookup_dummy_inv,
                                      in.lookup_dummy_counts,
-                                     in.execution_selector,
-                                     in.execution_selector,
+                                     in.execution_sel,
+                                     in.precomputed_sel_bitwise,
+                                     in.execution_sel,
                                      in.execution_clk,
-                                     in.execution_clk);
+                                     in.execution_clk,
+                                     in.execution_clk,
+                                     in.precomputed_bitwise_op_id,
+                                     in.precomputed_bitwise_input_a,
+                                     in.precomputed_bitwise_input_b,
+                                     in.precomputed_bitwise_output);
     }
 };
 

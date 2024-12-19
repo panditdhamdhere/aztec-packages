@@ -11,6 +11,7 @@
 #include "barretenberg/vm/stats.hpp"
 #include "barretenberg/vm2/tracegen/alu_trace.hpp"
 #include "barretenberg/vm2/tracegen/execution_trace.hpp"
+#include "barretenberg/vm2/tracegen/lib/lookup_into_bitwise.hpp"
 #include "barretenberg/vm2/tracegen/precomputed_trace.hpp"
 #include "barretenberg/vm2/tracegen/trace_container.hpp"
 
@@ -45,25 +46,47 @@ void execute_jobs(std::span<std::function<void()>> jobs)
 TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
 {
     TraceContainer trace;
+
     // We process the events in parallel. Ideally the jobs should access disjoint column sets.
-    auto jobs = concatenate(
-        // Precomputed column jobs.
-        build_precomputed_columns_jobs(trace),
-        // Subtrace jobs.
-        std::array<std::function<void()>, 2>{
+    {
+        auto jobs = concatenate(
+            // Precomputed column jobs.
+            build_precomputed_columns_jobs(trace),
+            // Subtrace jobs.
+            std::array<std::function<void()>, 2>{
+                [&]() {
+                    ExecutionTraceBuilder exec_builder;
+                    AVM_TRACK_TIME("tracegen/execution",
+                                   exec_builder.process(events.execution, events.addressing, trace));
+                    events.execution.clear();
+                    events.addressing.clear();
+                },
+                [&]() {
+                    AluTraceBuilder alu_builder;
+                    AVM_TRACK_TIME("tracegen/alu", alu_builder.process(events.alu, trace));
+                    events.alu.clear();
+                },
+            });
+        AVM_TRACK_TIME("tracegen/traces", execute_jobs(jobs));
+    }
+
+    // Now we can compute lookups.
+    {
+        auto jobs_lookups = std::array<std::function<void()>, 1>{
             [&]() {
-                ExecutionTraceBuilder exec_builder;
-                AVM_TRACK_TIME("tracegen/execution", exec_builder.process(events.execution, events.addressing, trace));
-                events.execution.clear();
-                events.addressing.clear();
+                LookupIntoBitwise lookup_execution_bitwise(Column::execution_sel,
+                                                           Column::lookup_dummy_counts,
+                                                           {
+                                                               Column::execution_sel,
+                                                               Column::precomputed_clk,
+                                                               Column::precomputed_clk,
+                                                               Column::precomputed_clk,
+                                                           });
+                lookup_execution_bitwise.process(trace);
             },
-            [&]() {
-                AluTraceBuilder alu_builder;
-                AVM_TRACK_TIME("tracegen/alu", alu_builder.process(events.alu, trace));
-                events.alu.clear();
-            },
-        });
-    execute_jobs(jobs);
+        };
+        AVM_TRACK_TIME("tracegen/lookups", execute_jobs(jobs_lookups));
+    }
 
     const auto rows = trace.get_num_rows();
     info("Generated trace with ",

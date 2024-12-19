@@ -46,13 +46,11 @@ AvmFlavor::AllConstRefValues::AllConstRefValues(
     , execution_sel_op2_is_address(il[38])
     , execution_sel_op3_is_address(il[39])
     , execution_sel_op4_is_address(il[40])
-    , execution_selector(il[41])
-    , execution_stack_pointer_tag(il[42])
-    , execution_stack_pointer_val(il[43])
-    , lookup_dummy_counts(il[44])
-    , lookup_dummy_inv(il[45])
-    , execution_clk_shift(il[46])
-    , execution_sel_shift(il[47])
+    , execution_stack_pointer_tag(il[41])
+    , execution_stack_pointer_val(il[42])
+    , lookup_dummy_counts(il[43])
+    , lookup_dummy_inv(il[44])
+    , execution_sel_shift(il[45])
 {}
 
 AvmFlavor::ProverPolynomials::ProverPolynomials(ProvingKey& proving_key)
@@ -110,12 +108,10 @@ AvmFlavor::AllConstRefValues AvmFlavor::ProverPolynomials::get_row(size_t row_id
                      execution_sel_op2_is_address[row_idx],
                      execution_sel_op3_is_address[row_idx],
                      execution_sel_op4_is_address[row_idx],
-                     execution_selector[row_idx],
                      execution_stack_pointer_tag[row_idx],
                      execution_stack_pointer_val[row_idx],
                      lookup_dummy_counts[row_idx],
                      lookup_dummy_inv[row_idx],
-                     execution_clk_shift[row_idx],
                      execution_sel_shift[row_idx] };
 }
 
@@ -162,7 +158,6 @@ AvmFlavor::CommitmentLabels::CommitmentLabels()
     Base::execution_sel_op2_is_address = "EXECUTION_SEL_OP2_IS_ADDRESS";
     Base::execution_sel_op3_is_address = "EXECUTION_SEL_OP3_IS_ADDRESS";
     Base::execution_sel_op4_is_address = "EXECUTION_SEL_OP4_IS_ADDRESS";
-    Base::execution_selector = "EXECUTION_SELECTOR";
     Base::execution_stack_pointer_tag = "EXECUTION_STACK_POINTER_TAG";
     Base::execution_stack_pointer_val = "EXECUTION_STACK_POINTER_VAL";
     Base::lookup_dummy_inv = "LOOKUP_DUMMY_INV";
