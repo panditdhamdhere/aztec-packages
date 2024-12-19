@@ -30,7 +30,7 @@ void AluTraceBuilder::process(const simulation::EventEmitterInterface<simulation
 {
     using C = Column;
 
-    size_t row = 0;
+    uint32_t row = 0;
     for (const auto& event : events) {
         C opcode_selector = get_operation_selector(event.operation);
 

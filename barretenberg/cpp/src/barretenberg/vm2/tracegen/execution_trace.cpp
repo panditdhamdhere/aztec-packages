@@ -29,7 +29,7 @@ void ExecutionTraceBuilder::process(
         throw std::runtime_error(format(
             "Execution and addressing events must have the same size: ", ex_events.size(), " != ", addr_events.size()));
     }
-    size_t row = 1; // We start from row 1 because this trace contains shifted columns.
+    uint32_t row = 1; // We start from row 1 because this trace contains shifted columns.
 
     // We process the execution events and other virtual gadgets in parallel.
     // Note that there is duplicated information in the events, for self-containment.

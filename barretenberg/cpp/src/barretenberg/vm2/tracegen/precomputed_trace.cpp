@@ -15,7 +15,8 @@ void PrecomputedTraceBuilder::process_misc(TraceContainer& trace)
     // Clk.
     // TODO: What a waste of 64MB. Can we elegantly have a flag for this?
     constexpr size_t circuit_size = 1 << 21; // TODO: Move somewhere else.
-    for (size_t i = 0; i < circuit_size; i++) {
+    trace.reserve_column(C::precomputed_clk, circuit_size);
+    for (uint32_t i = 0; i < circuit_size; i++) {
         trace.set(C::precomputed_clk, i, i);
     }
 }
@@ -24,7 +25,13 @@ void PrecomputedTraceBuilder::process_bitwise(TraceContainer& trace)
 {
     using C = Column;
 
-    size_t row = 0;
+    constexpr auto num_rows = 256 * 256 * 3;
+    trace.reserve_column(C::precomputed_sel_bitwise, num_rows);
+    trace.reserve_column(C::precomputed_bitwise_input_a, num_rows);
+    trace.reserve_column(C::precomputed_bitwise_input_b, num_rows);
+    trace.reserve_column(C::precomputed_bitwise_output, num_rows);
+
+    uint32_t row = 0;
     // AND
     for (size_t a = 0; a < 256; a++) {
         for (size_t b = 0; b < 256; b++) {

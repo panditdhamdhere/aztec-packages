@@ -17,7 +17,7 @@ class TestTraceContainer : public TraceContainer {
     TestTraceContainer() = default;
     TestTraceContainer(const std::vector<std::vector<std::pair<Column, FF>>>& values)
     {
-        for (size_t row = 0; row < values.size(); ++row) {
+        for (uint32_t row = 0; row < values.size(); ++row) {
             set(row, values[row]);
         }
     }

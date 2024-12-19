@@ -22,13 +22,7 @@ std::optional<ColumnAndShifts> shift_column(Column c)
 TestTraceContainer::RowTraceContainer TestTraceContainer::as_rows() const
 {
     // Find the maximum size of any column.
-    const size_t max_rows = [this]() {
-        size_t max_size = 0;
-        for (size_t col = 0; col < num_columns(); ++col) {
-            max_size = std::max(max_size, get_column_size(static_cast<Column>(col)));
-        }
-        return max_size;
-    }();
+    const uint32_t max_rows = get_num_rows();
 
     RowTraceContainer full_row_trace(max_rows);
     // Write the values.

@@ -44,8 +44,8 @@ AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace
                            auto& poly = to_be_shifted[i];
                            // WARNING! Column-Polynomials order matters!
                            Column col = static_cast<Column>(TO_BE_SHIFTED_COLUMNS_ARRAY.at(i));
-                           auto num_rows = trace.get_column_size(col);
-                           num_rows = num_rows >= 2 ? num_rows : 2; // We need at least 2 rows for the shift.
+                           // We need at least 2 rows for the shifted columns.
+                           uint32_t num_rows = std::max<uint32_t>(trace.get_column_rows(col), 2);
 
                            poly = AvmProver::Polynomial(
                                /*memory size*/
@@ -79,8 +79,7 @@ AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace
 
                            // WARNING! Column-Polynomials order matters!
                            Column col = static_cast<Column>(i);
-                           const auto num_rows = trace.get_column_size(col);
-
+                           const auto num_rows = trace.get_column_rows(col);
                            poly = AvmProver::Polynomial::create_non_parallel_zero_init(num_rows, circuit_subgroup_size);
                        });
                    }));
