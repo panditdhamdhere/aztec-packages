@@ -309,7 +309,6 @@ __metadata:
     commander: "npm:^12.1.0"
     jest: "npm:^29.5.0"
     jest-mock-extended: "npm:^3.0.3"
-    msgpackr: "npm^1.11.2"
     pako: "npm:^2.1.0"
     source-map-support: "npm:^0.5.21"
     ts-node: "npm:^10.9.1"
@@ -426,7 +425,7 @@ __metadata:
     "@types/node": "npm:^18.7.23"
     eslint: "npm:^8.35.0"
     jest: "npm:^29.5.0"
-    msgpackr: "npm^1.11.2"
+    msgpackr: "npm:^1.11.2"
     prettier: "npm:^2.8.4"
     ts-node: "npm:^10.9.1"
     tslib: "npm:^2.4.0"
@@ -14973,19 +14972,7 @@ __metadata:
   dependenciesMeta:
     msgpackr-extract:
       optional: true
-  checksum: f7d9aae68196b3612e522a81c939b226045d115e97233541bf8475d170ca686f814bfdb6255865912d052f87f37466dbadf09ca17541b315f03d9ad9f6b439ef
-  languageName: node
-  linkType: hard
-
-"msgpackr@npm:^1.11.2":
-  version: 1.11.2
-  resolution: "msgpackr@npm:1.11.2"
-  dependencies:
-    msgpackr-extract: ^3.0.2
-  dependenciesMeta:
-    msgpackr-extract:
-      optional: true
-  checksum: 53b30ddd68fd98ae95690017787f3b54414191314f3d36329cc01c073ec35fece87c86de731ef521d1f1b8adeb294008184ad0266d3a0e62cf0867dc728dcbd1
+  checksum: 10/7602f1e91e5ba13f4289ec9cab0d3f3db87d4ed323bebcb40a0c43ba2f6153192bffb63a5bb4755faacb6e0985f307c35084f40eaba1c325b7035da91381f01a
   languageName: node
   linkType: hard
 
