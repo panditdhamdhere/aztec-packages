@@ -26,7 +26,6 @@ std::pair<AvmAPI::AvmProof, AvmAPI::AvmVerificationKey> AvmAPI::prove(const AvmA
     AvmProvingHelper proving_helper;
     auto [proof, vk] = AVM_TRACK_TIME_V("proving/all", proving_helper.prove(std::move(trace)));
 
-    // FIXME: No VK.
     info("Done!");
     return { std::move(proof), std::move(vk) };
 }

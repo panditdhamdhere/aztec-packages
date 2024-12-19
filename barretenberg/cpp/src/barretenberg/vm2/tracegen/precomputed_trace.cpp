@@ -1,6 +1,7 @@
 #include "barretenberg/vm2/tracegen/precomputed_trace.hpp"
 #include "barretenberg/vm2/common/constants.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -31,44 +32,34 @@ void PrecomputedTraceBuilder::process_bitwise(TraceContainer& trace)
     trace.reserve_column(C::precomputed_bitwise_input_b, num_rows);
     trace.reserve_column(C::precomputed_bitwise_output, num_rows);
 
-    uint32_t row = 0;
-    // AND
-    for (size_t a = 0; a < 256; a++) {
-        for (size_t b = 0; b < 256; b++) {
-            trace.set(row,
-                      { {
-                          { C::precomputed_sel_bitwise, 1 },
-                          { C::precomputed_bitwise_input_a, FF(a) },
-                          { C::precomputed_bitwise_input_b, FF(b) },
-                          { C::precomputed_bitwise_output, FF(a & b) },
-                      } });
-            row++;
+    auto row_from_inputs = [](uint32_t op_id, uint32_t input_a, uint32_t input_b) -> uint32_t {
+        return (op_id << 16) | (input_a << 8) | input_b;
+    };
+    auto compute_operation = [](int op_id, uint32_t a, uint32_t b) -> uint32_t {
+        switch (op_id) {
+        case 0:
+            return a & b;
+        case 1:
+            return a | b;
+        case 2:
+            return a ^ b;
+        default:
+            return 0;
         }
-    }
-    // OR
-    for (size_t a = 0; a < 256; a++) {
-        for (size_t b = 0; b < 256; b++) {
-            trace.set(row,
-                      { {
-                          { C::precomputed_sel_bitwise, 1 },
-                          { C::precomputed_bitwise_input_a, FF(a) },
-                          { C::precomputed_bitwise_input_b, FF(b) },
-                          { C::precomputed_bitwise_output, FF(a | b) },
-                      } });
-            row++;
-        }
-    }
-    // XOR
-    for (size_t a = 0; a < 256; a++) {
-        for (size_t b = 0; b < 256; b++) {
-            trace.set(row,
-                      { {
-                          { C::precomputed_sel_bitwise, 1 },
-                          { C::precomputed_bitwise_input_a, FF(a) },
-                          { C::precomputed_bitwise_input_b, FF(b) },
-                          { C::precomputed_bitwise_output, FF(a ^ b) },
-                      } });
-            row++;
+    };
+
+    for (const auto op_id : { /*AND*/ 0, /*OR*/ 1, /*XOR*/ 2 }) {
+        for (uint32_t a = 0; a < 256; a++) {
+            for (uint32_t b = 0; b < 256; b++) {
+                trace.set(row_from_inputs(static_cast<uint32_t>(op_id), a, b),
+                          { {
+                              { C::precomputed_sel_bitwise, 1 },
+                              { C::precomputed_bitwise_op_id, op_id },
+                              { C::precomputed_bitwise_input_a, FF(a) },
+                              { C::precomputed_bitwise_input_b, FF(b) },
+                              { C::precomputed_bitwise_output, FF(compute_operation(op_id, a, b)) },
+                          } });
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ class LookupIntoBitwise : public BaseLookupTraceBuilder<4> {
         auto op_id = static_cast<uint32_t>(*tup[0]);
         auto a = static_cast<uint32_t>(*tup[1]);
         auto b = static_cast<uint32_t>(*tup[2]);
-        return (op_id << 16) + (a << 8) + b;
+        return (op_id << 16) | (a << 8) | b;
     }
 };
 
