@@ -31,6 +31,7 @@
 #include "barretenberg/vm/aztec_constants.hpp"
 #include "barretenberg/vm/stats.hpp"
 #include "barretenberg/vm2/avm_api.hpp"
+#include "barretenberg/vm2/common/constants.hpp"
 #endif
 
 using namespace bb;
@@ -718,7 +719,8 @@ void avm2_prove(const std::filesystem::path& inputs_path, const std::filesystem:
     avm2::AvmAPI avm;
     auto inputs = avm2::AvmAPI::ProvingInputs::from(read_file(inputs_path));
 
-    init_bn254_crs(1 << 23); // This is bigger than 1 << 21 because of BB inefficiencies.
+    // This is bigger than CIRCUIT_SUBGROUP_SIZE because of BB inefficiencies.
+    init_bn254_crs(avm2::CIRCUIT_SUBGROUP_SIZE * 2);
     auto [proof, vk] = avm.prove(inputs);
 
     // NOTE: As opposed to Avm1 and other proof systems, the public inputs are NOT part of the proof.

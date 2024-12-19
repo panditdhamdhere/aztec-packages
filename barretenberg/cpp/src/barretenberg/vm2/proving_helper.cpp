@@ -6,6 +6,7 @@
 #include "barretenberg/common/thread.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/vm/stats.hpp"
+#include "barretenberg/vm2/common/constants.hpp"
 #include "barretenberg/vm2/constraining/check_circuit.hpp"
 #include "barretenberg/vm2/generated/prover.hpp"
 #include "barretenberg/vm2/generated/verifier.hpp"
@@ -13,20 +14,18 @@
 namespace bb::avm2 {
 namespace {
 
-constexpr size_t circuit_subgroup_size = 1 << 21; // TODO: factor out.
-
 // TODO: This doesn't need to be a shared_ptr, but BB requires it.
 std::shared_ptr<AvmProver::ProvingKey> create_proving_key(AvmProver::ProverPolynomials& polynomials)
 {
     // TODO: Why is num_public_inputs 0?
-    auto proving_key = std::make_shared<AvmProver::ProvingKey>(circuit_subgroup_size, /*num_public_inputs=*/0);
+    auto proving_key = std::make_shared<AvmProver::ProvingKey>(CIRCUIT_SUBGROUP_SIZE, /*num_public_inputs=*/0);
 
     for (auto [key_poly, prover_poly] : zip_view(proving_key->get_all(), polynomials.get_unshifted())) {
         ASSERT(flavor_get_label(*proving_key, key_poly) == flavor_get_label(polynomials, prover_poly));
         key_poly = std::move(prover_poly);
     }
 
-    proving_key->commitment_key = std::make_shared<AvmProver::PCSCommitmentKey>(circuit_subgroup_size);
+    proving_key->commitment_key = std::make_shared<AvmProver::PCSCommitmentKey>(CIRCUIT_SUBGROUP_SIZE);
 
     return proving_key;
 }
@@ -50,7 +49,7 @@ AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace
                            poly = AvmProver::Polynomial(
                                /*memory size*/
                                num_rows - 1,
-                               /*largest possible index*/ circuit_subgroup_size,
+                               /*largest possible index*/ CIRCUIT_SUBGROUP_SIZE,
                                /*make shiftable with offset*/ 1);
                        }
                    }));
@@ -80,7 +79,7 @@ AvmProver::ProverPolynomials compute_polynomials(tracegen::TraceContainer& trace
                            // WARNING! Column-Polynomials order matters!
                            Column col = static_cast<Column>(i);
                            const auto num_rows = trace.get_column_rows(col);
-                           poly = AvmProver::Polynomial::create_non_parallel_zero_init(num_rows, circuit_subgroup_size);
+                           poly = AvmProver::Polynomial::create_non_parallel_zero_init(num_rows, CIRCUIT_SUBGROUP_SIZE);
                        });
                    }));
 
@@ -136,7 +135,7 @@ bool AvmProvingHelper::check_circuit(tracegen::TraceContainer&& trace)
     // However, for check-circuit purposes we run only over the trace rows
     // PLUS one extra row to catch any possible errors in the empty remainder
     // of the circuit.
-    const size_t num_rows = trace.get_num_rows() + 1;
+    const size_t num_rows = trace.get_num_rows_without_clk() + 1;
     info("Running check circuit over ", num_rows, " rows.");
 
     auto polynomials = AVM_TRACK_TIME_V("proving/prove:compute_polynomials", compute_polynomials(trace));

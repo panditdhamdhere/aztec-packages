@@ -88,12 +88,12 @@ TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
         AVM_TRACK_TIME("tracegen/lookups", execute_jobs(jobs_lookups));
     }
 
-    const auto rows = trace.get_num_rows();
+    const auto rows = trace.get_num_rows_without_clk();
     info("Generated trace with ",
          rows,
          " rows (closest power of 2: ",
          numeric::get_msb(numeric::round_up_power_2(rows)),
-         ")");
+         ") and column clk with 2^21 rows.");
     return trace;
 }
 

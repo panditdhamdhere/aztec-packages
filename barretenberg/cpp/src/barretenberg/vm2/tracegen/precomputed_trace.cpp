@@ -1,4 +1,5 @@
 #include "barretenberg/vm2/tracegen/precomputed_trace.hpp"
+#include "barretenberg/vm2/common/constants.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -14,9 +15,8 @@ void PrecomputedTraceBuilder::process_misc(TraceContainer& trace)
 
     // Clk.
     // TODO: What a waste of 64MB. Can we elegantly have a flag for this?
-    constexpr size_t circuit_size = 1 << 21; // TODO: Move somewhere else.
-    trace.reserve_column(C::precomputed_clk, circuit_size);
-    for (uint32_t i = 0; i < circuit_size; i++) {
+    trace.reserve_column(C::precomputed_clk, CIRCUIT_SUBGROUP_SIZE);
+    for (uint32_t i = 0; i < CIRCUIT_SUBGROUP_SIZE; i++) {
         trace.set(C::precomputed_clk, i, i);
     }
 }
