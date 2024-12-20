@@ -1,13 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <span>
 #include <sys/types.h>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "barretenberg/vm2/common/aztec_types.hpp"
+#include "barretenberg/vm2/common/map.hpp"
 #include "barretenberg/vm2/simulation/events/bytecode_events.hpp"
 #include "barretenberg/vm2/simulation/events/event_emitter.hpp"
 #include "barretenberg/vm2/simulation/lib/raw_data_db.hpp"
@@ -49,15 +50,15 @@ class TxBytecodeManager : public TxBytecodeManagerInterface {
 
   private:
     struct BytecodeInfo {
-        std::vector<uint8_t> bytecode;
+        std::shared_ptr<std::vector<uint8_t>> bytecode;
         ContractClassId class_id;
     };
 
     RawDataDBInterface& db;
     EventEmitterInterface<BytecodeHashingEvent>& hash_events;
     EventEmitterInterface<BytecodeDecompositionEvent>& decomposition_events;
-    std::unordered_map<BytecodeId, const BytecodeInfo> bytecodes;
-    std::unordered_map<AztecAddress, BytecodeId> resolved_addresses;
+    unordered_flat_map<BytecodeId, const BytecodeInfo> bytecodes;
+    unordered_flat_map<AztecAddress, BytecodeId> resolved_addresses;
     BytecodeId next_bytecode_id = 0;
 };
 

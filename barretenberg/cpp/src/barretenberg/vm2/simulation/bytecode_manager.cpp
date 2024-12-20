@@ -22,15 +22,14 @@ BytecodeId TxBytecodeManager::get_bytecode(const AztecAddress& address)
     FF hash = compute_public_bytecode_commitment(klass.packed_bytecode);
     info("Bytecode for ", address, " successfully retrieved!");
 
-    // OK OKKKK *maybe* it makes sense to use a shared_ptr with bytecode.
-    hash_events.emit({ .class_id = instance.contract_class_id, .bytecode = klass.packed_bytecode, .hash = hash });
+    // We convert the bytecode to a shared_ptr because it will be shared by some events.
+    auto shared_bytecode = std::make_shared<std::vector<uint8_t>>(std::move(klass.packed_bytecode));
+    hash_events.emit({ .class_id = instance.contract_class_id, .bytecode = shared_bytecode, .hash = hash });
 
     // We now save the bytecode so that we don't repeat this process.
     auto bytecode_id = next_bytecode_id++;
     resolved_addresses[address] = bytecode_id;
-    bytecodes.emplace(
-        bytecode_id,
-        BytecodeInfo{ .bytecode = std::move(klass.packed_bytecode), .class_id = instance.contract_class_id });
+    bytecodes.emplace(bytecode_id, BytecodeInfo{ .bytecode = shared_bytecode, .class_id = instance.contract_class_id });
 
     return bytecode_id;
 }
@@ -42,7 +41,7 @@ Instruction TxBytecodeManager::read_instruction(BytecodeId bytecode_id, uint32_t
         throw std::runtime_error("Bytecode not found");
     }
 
-    const auto& bytecode = it->second.bytecode;
+    const auto& bytecode = *it->second.bytecode;
     // TODO: catch errors etc.
     Instruction instruction = decode_instruction(bytecode, pc);
 

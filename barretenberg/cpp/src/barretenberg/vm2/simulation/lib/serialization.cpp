@@ -194,6 +194,32 @@ const std::unordered_map<WireOpCode, std::vector<OperandType>> WireOpCode_WIRE_F
 
 } // namespace
 
+Operand::Operand(const Operand& other)
+{
+    // Lazy implementation using the assignment operator.
+    *this = other;
+}
+
+Operand& Operand::operator=(const Operand& other)
+{
+    if (this != &other) {
+        if (std::holds_alternative<uint8_t>(other.value)) {
+            value = std::get<uint8_t>(other.value);
+        } else if (std::holds_alternative<uint16_t>(other.value)) {
+            value = std::get<uint16_t>(other.value);
+        } else if (std::holds_alternative<uint32_t>(other.value)) {
+            value = std::get<uint32_t>(other.value);
+        } else if (std::holds_alternative<uint64_t>(other.value)) {
+            value = std::get<uint64_t>(other.value);
+        } else if (std::holds_alternative<U128InHeap>(other.value)) {
+            value = std::make_unique<uint128_t>(*std::get<U128InHeap>(other.value));
+        } else {
+            value = std::make_unique<FF>(*std::get<FieldInHeap>(other.value));
+        }
+    }
+    return *this;
+}
+
 Operand::operator bool() const
 {
     return (this->operator uint8_t() == 1);
@@ -257,8 +283,8 @@ Operand::operator uint128_t() const
         return std::get<uint32_t>(value);
     } else if (std::holds_alternative<uint64_t>(value)) {
         return std::get<uint64_t>(value);
-    } else if (std::holds_alternative<uint128_t>(value)) {
-        return std::get<uint128_t>(value);
+    } else if (std::holds_alternative<U128InHeap>(value)) {
+        return *std::get<U128InHeap>(value);
     }
 
     throw std::runtime_error("Operand does not fit in uint128_t");
@@ -274,10 +300,10 @@ Operand::operator FF() const
         return std::get<uint32_t>(value);
     } else if (std::holds_alternative<uint64_t>(value)) {
         return std::get<uint64_t>(value);
-    } else if (std::holds_alternative<uint128_t>(value)) {
-        return uint256_t::from_uint128(std::get<uint128_t>(value));
+    } else if (std::holds_alternative<U128InHeap>(value)) {
+        return uint256_t::from_uint128(*std::get<U128InHeap>(value));
     } else {
-        return std::get<FF>(value);
+        return *std::get<FieldInHeap>(value);
     }
 }
 
@@ -291,9 +317,9 @@ std::string Operand::to_string() const
         return std::to_string(std::get<uint32_t>(value));
     } else if (std::holds_alternative<uint64_t>(value)) {
         return std::to_string(std::get<uint64_t>(value));
-    } else if (std::holds_alternative<uint128_t>(value)) {
+    } else if (std::holds_alternative<U128InHeap>(value)) {
         return "someu128";
-    } else if (std::holds_alternative<FF>(value)) {
+    } else if (std::holds_alternative<FieldInHeap>(value)) {
         return "someff";
     }
 
@@ -407,14 +433,14 @@ Instruction decode_instruction(std::span<const uint8_t> bytecode, size_t pos)
             uint128_t operand_u128 = 0;
             uint8_t const* pos_ptr = &bytecode[pos];
             serialize::read(pos_ptr, operand_u128);
-            operands.emplace_back(std::move(operand_u128));
+            operands.emplace_back(Operand::u128(operand_u128));
             break;
         }
         case OperandType::FF: {
             FF operand_ff;
             uint8_t const* pos_ptr = &bytecode[pos];
             read(pos_ptr, operand_ff);
-            operands.emplace_back(std::move(operand_ff));
+            operands.emplace_back(Operand::ff(operand_ff));
         }
         }
         pos += operand_size;

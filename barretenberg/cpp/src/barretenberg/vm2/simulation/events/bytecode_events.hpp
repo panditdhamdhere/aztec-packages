@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "barretenberg/vm2/common/aztec_types.hpp"
@@ -16,7 +17,7 @@ namespace bb::avm2::simulation {
 // And wether we want to allow events to explode vertically in tracegen.
 struct BytecodeHashingEvent {
     ContractClassId class_id;
-    std::vector<uint8_t> bytecode;
+    std::shared_ptr<std::vector<uint8_t>> bytecode;
     FF hash;
 };
 

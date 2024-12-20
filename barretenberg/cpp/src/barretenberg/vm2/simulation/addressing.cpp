@@ -46,7 +46,7 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
 
                 MemoryValue offset(event.after_relative[i]);
                 offset += stack_pointer.value;
-                event.after_relative[i] = static_cast<Operand>(offset);
+                event.after_relative[i] = Operand::ff(offset);
                 if (!memory.is_valid_address(offset)) {
                     throw AddressingException(AddressingEventError::RELATIVE_COMPUTATION_OOB, i);
                 }
@@ -62,7 +62,7 @@ std::vector<Operand> Addressing::resolve(const Instruction& instruction, MemoryI
                     throw AddressingException(AddressingEventError::INDIRECT_INVALID_ADDRESS, i);
                 }
                 auto new_address = memory.get(static_cast<MemoryAddress>(offset));
-                event.resolved_operands[i] = static_cast<Operand>(new_address.value);
+                event.resolved_operands[i] = Operand::ff(new_address.value);
             }
         }
 

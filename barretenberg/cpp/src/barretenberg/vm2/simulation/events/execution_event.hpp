@@ -18,14 +18,6 @@ struct ExecutionEvent {
     const InstructionSpec& instruction_spec;
     ExecutionOpCode opcode;
     std::vector<Operand> resolved_operands;
-
-    // We need to write this manually only because there struct contains a reference.
-    bool operator==(const ExecutionEvent& other) const
-    {
-        return pc == other.pc && contract_class_id == other.contract_class_id &&
-               wire_instruction == other.wire_instruction && instruction_spec == other.instruction_spec &&
-               opcode == other.opcode && resolved_operands == other.resolved_operands;
-    }
 };
 
 } // namespace bb::avm2::simulation

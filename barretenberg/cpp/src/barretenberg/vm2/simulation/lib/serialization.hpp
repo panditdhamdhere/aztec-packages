@@ -6,24 +6,35 @@
 #include "barretenberg/vm2/common/opcodes.hpp"
 
 #include <cstdint>
+#include <memory>
 #include <variant>
 #include <vector>
 
 namespace bb::avm2::simulation {
 
 class Operand {
+  private:
+    // We use unique ptrs to bound the size of the Operand class to the size of a pointer.
+    using FieldInHeap = std::unique_ptr<FF>;
+    using U128InHeap = std::unique_ptr<uint128_t>;
+    using Variant = std::variant<uint8_t, uint16_t, uint32_t, uint64_t, FieldInHeap, U128InHeap>;
+    Variant value;
+
   public:
-    Operand(std::variant<uint8_t, uint16_t, uint32_t, uint64_t, uint128_t, FF> value)
+    Operand(Variant value)
         : value(std::move(value))
     {}
+    Operand(const Operand& other);
+    Operand(Operand&&) = default;
+    Operand& operator=(const Operand& other);
 
     // Helpers for when we want to pass a value without casting.
     static Operand u8(uint8_t value) { return { value }; }
     static Operand u16(uint16_t value) { return { value }; }
     static Operand u32(uint32_t value) { return { value }; }
     static Operand u64(uint64_t value) { return { value }; }
-    static Operand u128(uint128_t value) { return { std::move(value) }; }
-    static Operand ff(FF value) { return { std::move(value) }; }
+    static Operand u128(uint128_t value) { return { std::make_unique<uint128_t>(value) }; }
+    static Operand ff(FF value) { return { std::make_unique<FF>(value) }; }
 
     // We define conversion to supported types.
     // The conversion will throw if the type would truncate.
@@ -35,11 +46,7 @@ class Operand {
     explicit operator uint128_t() const;
     explicit operator FF() const;
 
-    bool operator==(const Operand& other) const = default;
     std::string to_string() const;
-
-  private:
-    std::variant<uint8_t, uint16_t, uint32_t, uint64_t, uint128_t, FF> value;
 };
 
 struct Instruction {
@@ -48,7 +55,6 @@ struct Instruction {
     std::vector<Operand> operands;
     uint8_t size_in_bytes;
 
-    bool operator==(const Instruction& other) const = default;
     std::string to_string() const;
 };
 
