@@ -9,6 +9,7 @@
 #include "barretenberg/common/thread.hpp"
 #include "barretenberg/numeric/bitop/get_msb.hpp"
 #include "barretenberg/vm/stats.hpp"
+#include "barretenberg/vm2/generated/relations/lookup_dummy.hpp"
 #include "barretenberg/vm2/tracegen/alu_trace.hpp"
 #include "barretenberg/vm2/tracegen/execution_trace.hpp"
 #include "barretenberg/vm2/tracegen/lib/lookup_into_bitwise.hpp"
@@ -74,14 +75,7 @@ TraceContainer AvmTraceGenHelper::generate_trace(EventsContainer&& events)
     {
         auto jobs_lookups = std::array<std::function<void()>, 1>{
             [&]() {
-                LookupIntoBitwise lookup_execution_bitwise(Column::execution_sel,
-                                                           Column::lookup_dummy_counts,
-                                                           {
-                                                               Column::execution_sel,
-                                                               Column::precomputed_clk,
-                                                               Column::precomputed_clk,
-                                                               Column::precomputed_clk,
-                                                           });
+                LookupIntoBitwise<lookup_dummy_lookup_settings> lookup_execution_bitwise;
                 lookup_execution_bitwise.process(trace);
             },
         };

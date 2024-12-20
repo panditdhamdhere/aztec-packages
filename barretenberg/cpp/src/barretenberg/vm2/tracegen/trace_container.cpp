@@ -24,16 +24,6 @@ const FF& TraceContainer::get(Column col, uint32_t row) const
     return it == column_data.rows.end() ? zero : it->second;
 }
 
-std::vector<const FF*> TraceContainer::get_multiple(std::span<const Column> cols, uint32_t row) const
-{
-    std::vector<const FF*> values;
-    values.reserve(cols.size());
-    for (const auto col : cols) {
-        values.push_back(&get(col, row));
-    }
-    return values;
-}
-
 void TraceContainer::set(Column col, uint32_t row, const FF& value)
 {
     auto& column_data = (*trace)[static_cast<size_t>(col)];

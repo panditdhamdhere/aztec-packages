@@ -23,7 +23,12 @@ class TraceContainer {
     TraceContainer();
 
     const FF& get(Column col, uint32_t row) const;
-    std::vector<const FF*> get_multiple(std::span<const Column> cols, uint32_t row) const;
+    template <size_t N> std::array<FF, N> get_multiple(const std::array<Column, N>& cols, uint32_t row) const
+    {
+        std::array<FF, N> result;
+        std::transform(cols.begin(), cols.end(), result.begin(), [&](Column col) { return get(col, row); });
+        return result;
+    }
 
     void set(Column col, uint32_t row, const FF& value);
     // Bulk setting for a given row.
