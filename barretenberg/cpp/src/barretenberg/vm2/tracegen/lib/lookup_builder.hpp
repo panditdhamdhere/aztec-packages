@@ -9,8 +9,6 @@
 
 namespace bb::avm2::tracegen {
 
-// TODO: This builds the counts. Think if it should do more or change name.
-
 template <typename LookupSettings_> class BaseLookupTraceBuilder {
   public:
     virtual ~BaseLookupTraceBuilder() = default;

@@ -57,6 +57,9 @@ class TraceContainer {
         std::shared_mutex mutex;
         uint32_t max_row_number = 0;
         bool row_number_dirty; // needs recalculation
+        // Future memory optimization notes: we can do the same trick as in Operand.
+        // That is, store a variant with a unique_ptr. However, we should benchmark this.
+        // (see serialization.hpp).
         unordered_flat_map<uint32_t, FF> rows;
     };
     static constexpr size_t NUM_COLUMNS = static_cast<size_t>(ColumnAndShifts::NUM_COLUMNS);

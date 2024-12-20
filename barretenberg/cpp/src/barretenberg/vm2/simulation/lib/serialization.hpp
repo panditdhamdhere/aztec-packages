@@ -15,6 +15,9 @@ namespace bb::avm2::simulation {
 class Operand {
   private:
     // We use unique ptrs to bound the size of the Operand class to the size of a pointer.
+    // FIXME: Not true! Sadly the variant is sizeof(ptr) + 1 = 8 + 1, but it's aligned,
+    // so it's 16 bytes which wastes 7 bytes. Still better than 32 + 1 + padding = 40 bytes,
+    // but worth it?
     using FieldInHeap = std::unique_ptr<FF>;
     using U128InHeap = std::unique_ptr<uint128_t>;
     using Variant = std::variant<uint8_t, uint16_t, uint32_t, uint64_t, FieldInHeap, U128InHeap>;
