@@ -205,7 +205,7 @@ describe('e2e_block_building', () => {
       // This will leave the sequencer with just 2s to build the block, so it shouldn't be
       // able to squeeze in more than 10 txs in each. This is sensitive to the time it takes
       // to pick up and validate the txs, so we may need to bump it to work on CI.
-      sequencer.sequencer.timeTable[SequencerState.WAITING_FOR_TXS] = 2;
+      sequencer.sequencer.timeTable[SequencerState.INITIALIZING_PROPOSAL] = 2;
       sequencer.sequencer.timeTable[SequencerState.CREATING_BLOCK] = 2;
       sequencer.sequencer.processTxTime = 1;
 
